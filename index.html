@@ -672,17 +672,21 @@ function detectPriceDrops(listings) {
     let highestOldPrice = null;
     let dropDate = null;
 
-    // Check the history array for price events
-    if (listing.history && listing.history.length > 0) {
-      for (const event of listing.history) {
+    // Check the history for price events (may be an object keyed by date or an array)
+    if (listing.history) {
+      const events = Array.isArray(listing.history)
+        ? listing.history
+        : Object.entries(listing.history).map(([date, evt]) => ({ ...evt, date }));
+
+      for (const event of events) {
         const eventPrice = event.price;
         if (eventPrice && eventPrice > currentPrice) {
           if (!highestOldPrice || eventPrice > highestOldPrice) {
             highestOldPrice = eventPrice;
           }
-          // Track the most recent event date as the drop date
-          if (!dropDate || new Date(event.date) > new Date(dropDate)) {
-            dropDate = event.date;
+          const eventDate = event.date || event.listedDate;
+          if (eventDate && (!dropDate || new Date(eventDate) > new Date(dropDate))) {
+            dropDate = eventDate;
           }
         }
       }
