@@ -126,58 +126,6 @@ header {
   font-family: 'JetBrains Mono', monospace;
 }
 
-/* API Key Setup */
-.api-setup {
-  background: var(--bg-card);
-  border: 1px solid var(--burnt-orange);
-  border-radius: 8px;
-  padding: 24px;
-  margin: 24px 0;
-  text-align: center;
-}
-
-.api-setup h3 {
-  color: var(--burnt-orange);
-  margin-bottom: 8px;
-}
-
-.api-setup p {
-  color: var(--text-dim);
-  font-size: 14px;
-  margin-bottom: 16px;
-}
-
-.api-setup input {
-  background: var(--bg);
-  border: 1px solid var(--border);
-  color: var(--text);
-  padding: 10px 16px;
-  border-radius: 6px;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 14px;
-  width: 340px;
-  max-width: 100%;
-}
-
-.api-setup input:focus {
-  outline: none;
-  border-color: var(--burnt-orange);
-}
-
-.api-setup button {
-  background: var(--burnt-orange);
-  color: white;
-  border: none;
-  padding: 10px 24px;
-  border-radius: 6px;
-  font-weight: 600;
-  cursor: pointer;
-  margin-left: 8px;
-  font-size: 14px;
-}
-
-.api-setup button:hover { opacity: 0.9; }
-
 /* How It Works Accordion */
 .accordion {
   margin: 24px 0;
@@ -568,16 +516,6 @@ footer a:hover { text-decoration: underline; }
 </header>
 
 <main class="container">
-  <!-- API Key Setup -->
-  <div class="api-setup" id="api-setup">
-    <h3>&#9733; Enter Your RentCast API Key</h3>
-    <p>Get a free key at <a href="https://www.rentcast.io" target="_blank" style="color:var(--burnt-orange)">rentcast.io</a> — data stays in your browser.</p>
-    <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;">
-      <input type="text" id="api-key-input" placeholder="Your RentCast API key">
-      <button onclick="saveApiKey()">Connect</button>
-    </div>
-  </div>
-
   <!-- How It Works -->
   <div class="accordion">
     <button class="accordion-toggle" onclick="toggleAccordion(this)">
@@ -660,7 +598,7 @@ footer a:hover { text-decoration: underline; }
 <script>
 const CACHE_KEY = 'panicselling_austin_data';
 const CACHE_TTL = 24 * 60 * 60 * 1000; // 24 hours
-const API_KEY_KEY = 'panicselling_api_key';
+const API_KEY = 'aaf58d54194c477ab9a37a089339756c';
 
 let allDrops = [];
 let totalScanned = 0;
@@ -695,26 +633,12 @@ function getSeverity(pct) {
   return 'small';
 }
 
-// --- API Key ---
-
-function getApiKey() {
-  return localStorage.getItem(API_KEY_KEY);
-}
-
-function saveApiKey() {
-  const key = document.getElementById('api-key-input').value.trim();
-  if (!key) return;
-  localStorage.setItem(API_KEY_KEY, key);
-  document.getElementById('api-setup').style.display = 'none';
-  loadData();
-}
-
 // --- Data Fetching ---
 
-async function fetchListings(apiKey) {
+async function fetchListings() {
   const url = 'https://api.rentcast.io/v1/listings/sale?city=Austin&state=TX&status=Active&limit=500';
   const resp = await fetch(url, {
-    headers: { 'X-Api-Key': apiKey, 'Accept': 'application/json' }
+    headers: { 'X-Api-Key': API_KEY, 'Accept': 'application/json' }
   });
   if (!resp.ok) {
     const text = await resp.text();
@@ -925,13 +849,6 @@ function toggleAccordion(btn) {
 // --- Main Load ---
 
 async function loadData() {
-  const apiKey = getApiKey();
-  if (!apiKey) {
-    document.getElementById('api-setup').style.display = 'block';
-    return;
-  }
-
-  document.getElementById('api-setup').style.display = 'none';
   const container = document.getElementById('cards-container');
   container.innerHTML = '<div class="loading"><div class="spinner"></div>Scanning Austin listings for price drops...</div>';
 
@@ -941,7 +858,7 @@ async function loadData() {
     let fromCache = !!listings;
 
     if (!listings) {
-      listings = await fetchListings(apiKey);
+      listings = await fetchListings();
       setCachedData(listings);
     }
 
@@ -988,12 +905,7 @@ async function loadData() {
 }
 
 // Init
-if (getApiKey()) {
-  document.getElementById('api-setup').style.display = 'none';
-  loadData();
-} else {
-  document.getElementById('api-setup').style.display = 'block';
-}
+loadData();
 </script>
 
 </body>
