@@ -50,13 +50,13 @@ async function getMedianRent(zipCode, cache) {
 
   // Extract median rent from market data
   let medianRent = null;
-  if (data && data.rentData && data.rentData.averageRent != null) {
-    medianRent = data.rentData.averageRent;
+  if (data && data.rentalData && data.rentalData.averageRent != null) {
+    medianRent = data.rentalData.averageRent;
   } else if (data && data.medianRent != null) {
     medianRent = data.medianRent;
   } else if (Array.isArray(data) && data.length > 0) {
     const entry = data[0];
-    medianRent = entry.rentData?.averageRent ?? entry.medianRent ?? null;
+    medianRent = entry.rentalData?.averageRent ?? entry.medianRent ?? null;
   }
 
   cache[zipCode] = { medianRent, fetchedAt: now };
