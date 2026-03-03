@@ -73,6 +73,11 @@ function detectPriceDrops(listings) {
     }
 
     if (highestOldPrice && highestOldPrice > currentPrice) {
+      const finalDropDate = dropDate || listing.lastSeen || listing.createdDate;
+      const twelveMonthsAgo = new Date();
+      twelveMonthsAgo.setFullYear(twelveMonthsAgo.getFullYear() - 1);
+      if (!finalDropDate || new Date(finalDropDate) < twelveMonthsAgo) continue;
+
       const dropDollar = highestOldPrice - currentPrice;
       const dropPercent = (dropDollar / highestOldPrice) * 100;
 
@@ -90,7 +95,7 @@ function detectPriceDrops(listings) {
         oldPrice: highestOldPrice,
         dropDollar,
         dropPercent,
-        dropDate: dropDate || listing.lastSeen || listing.createdDate || new Date().toISOString(),
+        dropDate: finalDropDate,
         daysOnMarket: listing.daysOnMarket,
         status: listing.status,
       });
