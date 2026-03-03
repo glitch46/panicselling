@@ -1,0 +1,1000 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Panic Selling Austin - Real Estate Price Drop Tracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #0c0c14;
+  --bg-card: #13131f;
+  --bg-card-hover: #1a1a2e;
+  --border: #1e1e30;
+  --burnt-orange: #BF5700;
+  --texas-red: #CC0000;
+  --warm-gold: #D4A017;
+  --cyan: #00d4ff;
+  --text: #e0e0e0;
+  --text-dim: #888;
+  --text-muted: #555;
+  --green: #00c853;
+  --drop-big: #ff1744;
+  --drop-medium: #ff6d00;
+  --drop-small: #ffc107;
+}
+
+body {
+  font-family: 'Inter', -apple-system, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  line-height: 1.5;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+/* Header */
+header {
+  border-bottom: 1px solid var(--border);
+  padding: 20px 0;
+}
+
+.header-inner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.logo-star {
+  font-size: 28px;
+  color: var(--warm-gold);
+}
+
+.logo h1 {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: 2px;
+}
+
+.logo h1 .panic { color: var(--burnt-orange); }
+.logo h1 .selling { color: var(--text-dim); }
+.logo h1 .austin { color: #aaa; font-weight: 400; font-size: 14px; display: block; letter-spacing: 4px; }
+
+.header-stats {
+  display: flex;
+  gap: 24px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.header-stat {
+  text-align: center;
+}
+
+.header-stat .value {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--cyan);
+}
+
+.header-stat .label {
+  font-size: 11px;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.pulse-dot {
+  width: 10px;
+  height: 10px;
+  background: var(--green);
+  border-radius: 50%;
+  animation: pulse 2s infinite;
+  display: inline-block;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(0,200,83,0.5); }
+  50% { opacity: 0.7; box-shadow: 0 0 0 8px rgba(0,200,83,0); }
+}
+
+.live-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--green);
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* API Key Setup */
+.api-setup {
+  background: var(--bg-card);
+  border: 1px solid var(--burnt-orange);
+  border-radius: 8px;
+  padding: 24px;
+  margin: 24px 0;
+  text-align: center;
+}
+
+.api-setup h3 {
+  color: var(--burnt-orange);
+  margin-bottom: 8px;
+}
+
+.api-setup p {
+  color: var(--text-dim);
+  font-size: 14px;
+  margin-bottom: 16px;
+}
+
+.api-setup input {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 10px 16px;
+  border-radius: 6px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 14px;
+  width: 340px;
+  max-width: 100%;
+}
+
+.api-setup input:focus {
+  outline: none;
+  border-color: var(--burnt-orange);
+}
+
+.api-setup button {
+  background: var(--burnt-orange);
+  color: white;
+  border: none;
+  padding: 10px 24px;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-left: 8px;
+  font-size: 14px;
+}
+
+.api-setup button:hover { opacity: 0.9; }
+
+/* How It Works Accordion */
+.accordion {
+  margin: 24px 0;
+}
+
+.accordion-toggle {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 16px 20px;
+  width: 100%;
+  text-align: left;
+  color: var(--text);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: background 0.2s;
+}
+
+.accordion-toggle:hover { background: var(--bg-card-hover); }
+
+.accordion-toggle .arrow {
+  transition: transform 0.3s;
+  color: var(--burnt-orange);
+}
+
+.accordion-toggle.open .arrow { transform: rotate(180deg); }
+
+.accordion-content {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-top: none;
+  border-radius: 0 0 8px 8px;
+}
+
+.accordion-content.open { max-height: 400px; }
+
+.accordion-content-inner {
+  padding: 20px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+}
+
+.step {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.step-num {
+  background: var(--burnt-orange);
+  color: white;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 13px;
+  flex-shrink: 0;
+}
+
+.step-text {
+  font-size: 13px;
+  color: var(--text-dim);
+}
+
+.step-text strong { color: var(--text); }
+
+/* Filter Controls */
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  margin: 24px 0;
+}
+
+.filter-group {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.filter-btn {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  padding: 8px 14px;
+  border-radius: 6px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: 'Inter', sans-serif;
+}
+
+.filter-btn:hover {
+  border-color: var(--burnt-orange);
+  color: var(--text);
+}
+
+.filter-btn.active {
+  background: var(--burnt-orange);
+  border-color: var(--burnt-orange);
+  color: white;
+}
+
+.sort-select {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 13px;
+  cursor: pointer;
+  font-family: 'Inter', sans-serif;
+  margin-left: auto;
+}
+
+.sort-select:focus { outline: none; border-color: var(--burnt-orange); }
+
+/* Stats Bar */
+.stats-bar {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px;
+  margin: 24px 0;
+}
+
+.stat-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 16px 20px;
+  text-align: center;
+}
+
+.stat-card .stat-value {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.stat-card .stat-label {
+  font-size: 11px;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-top: 4px;
+}
+
+.stat-red { color: var(--texas-red); }
+.stat-orange { color: var(--burnt-orange); }
+.stat-gold { color: var(--warm-gold); }
+.stat-cyan { color: var(--cyan); }
+
+/* Property Cards */
+.cards-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 24px 0;
+  padding-bottom: 60px;
+}
+
+.property-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 20px;
+  display: grid;
+  grid-template-columns: 48px 1fr auto;
+  gap: 16px;
+  align-items: center;
+  transition: all 0.2s;
+  cursor: default;
+}
+
+.property-card:hover {
+  background: var(--bg-card-hover);
+  border-color: #2a2a40;
+  transform: translateY(-1px);
+}
+
+.property-card.severity-big { border-left: 3px solid var(--drop-big); }
+.property-card.severity-medium { border-left: 3px solid var(--drop-medium); }
+.property-card.severity-small { border-left: 3px solid var(--drop-small); }
+
+/* Rank */
+.rank {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 18px;
+  font-weight: 700;
+  text-align: center;
+  color: var(--text-dim);
+}
+
+.rank.gold { color: #FFD700; }
+.rank.silver { color: #C0C0C0; }
+.rank.bronze { color: #CD7F32; }
+
+/* Card Details */
+.card-details { min-width: 0; }
+
+.card-address {
+  font-weight: 600;
+  font-size: 15px;
+  margin-bottom: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.card-neighborhood {
+  font-size: 12px;
+  color: var(--text-dim);
+  margin-bottom: 8px;
+}
+
+.card-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.tag {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 2px 8px;
+  font-size: 11px;
+  color: var(--text-dim);
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.tag-type {
+  border-color: var(--burnt-orange);
+  color: var(--burnt-orange);
+}
+
+.card-time {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 6px;
+}
+
+/* Price Section */
+.card-price {
+  text-align: right;
+  white-space: nowrap;
+}
+
+.price-old {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  color: var(--text-dim);
+  text-decoration: line-through;
+}
+
+.price-new {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.price-drop-amount {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--texas-red);
+}
+
+.price-drop-pct {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 4px;
+  display: inline-block;
+  margin-top: 4px;
+}
+
+.pct-big { background: rgba(255,23,68,0.15); color: var(--drop-big); }
+.pct-medium { background: rgba(255,109,0,0.15); color: var(--drop-medium); }
+.pct-small { background: rgba(255,193,7,0.15); color: var(--drop-small); }
+
+/* Loading */
+.loading {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--text-dim);
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid var(--border);
+  border-top-color: var(--burnt-orange);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin: 0 auto 16px;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.error-msg {
+  background: rgba(204,0,0,0.1);
+  border: 1px solid var(--texas-red);
+  border-radius: 8px;
+  padding: 16px 20px;
+  margin: 24px 0;
+  color: var(--texas-red);
+  font-size: 14px;
+}
+
+.no-results {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--text-dim);
+  font-size: 14px;
+}
+
+/* Footer */
+footer {
+  text-align: center;
+  padding: 20px;
+  color: var(--text-muted);
+  font-size: 12px;
+  border-top: 1px solid var(--border);
+}
+
+footer a { color: var(--burnt-orange); text-decoration: none; }
+footer a:hover { text-decoration: underline; }
+
+/* Responsive */
+@media (max-width: 768px) {
+  .header-inner { flex-direction: column; text-align: center; }
+  .header-stats { justify-content: center; }
+  .property-card { grid-template-columns: 36px 1fr; }
+  .card-price { grid-column: 1 / -1; text-align: left; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  .controls { flex-direction: column; align-items: stretch; }
+  .sort-select { margin-left: 0; }
+  .stats-bar { grid-template-columns: 1fr 1fr; }
+}
+
+@media (max-width: 480px) {
+  .logo h1 { font-size: 18px; }
+  .header-stat .value { font-size: 16px; }
+  .stats-bar { grid-template-columns: 1fr; }
+  .property-card { padding: 14px; }
+  .price-new { font-size: 16px; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="container header-inner">
+    <div class="logo">
+      <span class="logo-star">&#9733;</span>
+      <h1><span class="panic">PANIC</span> <span class="selling">SELLING</span><span class="austin">AUSTIN, TX</span></h1>
+    </div>
+    <div class="header-stats">
+      <div class="header-stat">
+        <div class="value" id="hdr-drops">—</div>
+        <div class="label">Drops Found</div>
+      </div>
+      <div class="header-stat">
+        <div class="value" id="hdr-avg">—</div>
+        <div class="label">Avg Drop %</div>
+      </div>
+      <div class="header-stat">
+        <div class="value" id="hdr-biggest">—</div>
+        <div class="label">Biggest Drop</div>
+      </div>
+      <div class="live-label"><span class="pulse-dot"></span> LIVE</div>
+    </div>
+  </div>
+</header>
+
+<main class="container">
+  <!-- API Key Setup -->
+  <div class="api-setup" id="api-setup">
+    <h3>&#9733; Enter Your RentCast API Key</h3>
+    <p>Get a free key at <a href="https://www.rentcast.io" target="_blank" style="color:var(--burnt-orange)">rentcast.io</a> — data stays in your browser.</p>
+    <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;">
+      <input type="text" id="api-key-input" placeholder="Your RentCast API key">
+      <button onclick="saveApiKey()">Connect</button>
+    </div>
+  </div>
+
+  <!-- How It Works -->
+  <div class="accordion">
+    <button class="accordion-toggle" onclick="toggleAccordion(this)">
+      <span>&#9733; How It Works</span>
+      <span class="arrow">&#9660;</span>
+    </button>
+    <div class="accordion-content">
+      <div class="accordion-content-inner">
+        <div class="step">
+          <div class="step-num">1</div>
+          <div class="step-text"><strong>Scan</strong> — We pull active Austin listings from RentCast with full price history.</div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div class="step-text"><strong>Detect</strong> — Compare current price to historical prices to find drops.</div>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <div class="step-text"><strong>Rank</strong> — Sort by drop magnitude so the biggest panic sellers surface first.</div>
+        </div>
+        <div class="step">
+          <div class="step-num">4</div>
+          <div class="step-text"><strong>Cache</strong> — Data cached 24h to stay within API limits. Fresh data daily.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filter Controls -->
+  <div class="controls" id="controls" style="display:none;">
+    <div class="filter-group" id="type-filters">
+      <button class="filter-btn active" data-type="all">All</button>
+      <button class="filter-btn" data-type="Single Family">Single Family</button>
+      <button class="filter-btn" data-type="Condo">Condo</button>
+      <button class="filter-btn" data-type="Townhouse">Townhouse</button>
+      <button class="filter-btn" data-type="Multi-Family">Multi-Family</button>
+    </div>
+    <div class="filter-group" id="threshold-filters">
+      <button class="filter-btn" data-threshold="10">10%+ Drops</button>
+      <button class="filter-btn" data-threshold="20">20%+ Drops</button>
+    </div>
+    <select class="sort-select" id="sort-select" onchange="applyFilters()">
+      <option value="dropDollar">Biggest $ Drop</option>
+      <option value="dropPercent">Biggest % Drop</option>
+      <option value="mostRecent">Most Recent Drop</option>
+      <option value="lowestPrice">Lowest Price</option>
+    </select>
+  </div>
+
+  <!-- Stats Bar -->
+  <div class="stats-bar" id="stats-bar" style="display:none;">
+    <div class="stat-card">
+      <div class="stat-value stat-red" id="stat-biggest-pct">—</div>
+      <div class="stat-label">Biggest % Drop</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value stat-cyan" id="stat-total-scanned">—</div>
+      <div class="stat-label">Properties Scanned</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value stat-orange" id="stat-total-value">—</div>
+      <div class="stat-label">Total Value Shed</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value stat-gold" id="stat-median-drop">—</div>
+      <div class="stat-label">Median $ Drop</div>
+    </div>
+  </div>
+
+  <!-- Cards List -->
+  <div id="cards-container"></div>
+</main>
+
+<footer>
+  <div class="container">
+    Powered by <a href="https://www.rentcast.io" target="_blank">RentCast</a> &bull; Inspired by <a href="https://panicselling.xyz" target="_blank">panicselling.xyz</a> &bull; Austin, TX &#9733;
+  </div>
+</footer>
+
+<script>
+const CACHE_KEY = 'panicselling_austin_data';
+const CACHE_TTL = 24 * 60 * 60 * 1000; // 24 hours
+const API_KEY_KEY = 'panicselling_api_key';
+
+let allDrops = [];
+let totalScanned = 0;
+
+// --- Utilities ---
+
+function formatCurrency(n) {
+  if (n >= 1e6) return '$' + (n / 1e6).toFixed(2) + 'M';
+  if (n >= 1e3) return '$' + (n / 1e3).toFixed(0) + 'K';
+  return '$' + n.toLocaleString();
+}
+
+function formatCurrencyFull(n) {
+  return '$' + n.toLocaleString();
+}
+
+function timeAgo(dateStr) {
+  const diff = Date.now() - new Date(dateStr).getTime();
+  const mins = Math.floor(diff / 60000);
+  if (mins < 60) return mins + 'm ago';
+  const hrs = Math.floor(mins / 60);
+  if (hrs < 24) return hrs + 'h ago';
+  const days = Math.floor(hrs / 24);
+  if (days < 30) return days + 'd ago';
+  const months = Math.floor(days / 30);
+  return months + 'mo ago';
+}
+
+function getSeverity(pct) {
+  if (pct >= 20) return 'big';
+  if (pct >= 10) return 'medium';
+  return 'small';
+}
+
+// --- API Key ---
+
+function getApiKey() {
+  return localStorage.getItem(API_KEY_KEY);
+}
+
+function saveApiKey() {
+  const key = document.getElementById('api-key-input').value.trim();
+  if (!key) return;
+  localStorage.setItem(API_KEY_KEY, key);
+  document.getElementById('api-setup').style.display = 'none';
+  loadData();
+}
+
+// --- Data Fetching ---
+
+async function fetchListings(apiKey) {
+  const url = 'https://api.rentcast.io/v1/listings/sale?city=Austin&state=TX&status=Active&limit=500';
+  const resp = await fetch(url, {
+    headers: { 'X-Api-Key': apiKey, 'Accept': 'application/json' }
+  });
+  if (!resp.ok) {
+    const text = await resp.text();
+    throw new Error('API error ' + resp.status + ': ' + text);
+  }
+  return resp.json();
+}
+
+function getCachedData() {
+  try {
+    const raw = localStorage.getItem(CACHE_KEY);
+    if (!raw) return null;
+    const cached = JSON.parse(raw);
+    if (Date.now() - cached.timestamp < CACHE_TTL) return cached.data;
+  } catch (e) {}
+  return null;
+}
+
+function setCachedData(data) {
+  localStorage.setItem(CACHE_KEY, JSON.stringify({ timestamp: Date.now(), data }));
+}
+
+// --- Price Drop Detection ---
+
+function detectPriceDrops(listings) {
+  const drops = [];
+
+  for (const listing of listings) {
+    const currentPrice = listing.price;
+    if (!currentPrice) continue;
+
+    let highestOldPrice = null;
+    let dropDate = null;
+
+    // Check the history array for price events
+    if (listing.history && listing.history.length > 0) {
+      for (const event of listing.history) {
+        const eventPrice = event.price;
+        if (eventPrice && eventPrice > currentPrice) {
+          if (!highestOldPrice || eventPrice > highestOldPrice) {
+            highestOldPrice = eventPrice;
+          }
+          // Track the most recent event date as the drop date
+          if (!dropDate || new Date(event.date) > new Date(dropDate)) {
+            dropDate = event.date;
+          }
+        }
+      }
+    }
+
+    // Also check listedPrice / previousPrice fields if present
+    if (listing.listedPrice && listing.listedPrice > currentPrice) {
+      if (!highestOldPrice || listing.listedPrice > highestOldPrice) {
+        highestOldPrice = listing.listedPrice;
+      }
+    }
+
+    if (highestOldPrice && highestOldPrice > currentPrice) {
+      const dropDollar = highestOldPrice - currentPrice;
+      const dropPercent = (dropDollar / highestOldPrice) * 100;
+
+      drops.push({
+        address: listing.formattedAddress || listing.addressLine1 || 'Unknown',
+        city: listing.city || 'Austin',
+        state: listing.state || 'TX',
+        zip: listing.zipCode || '',
+        neighborhood: listing.county || listing.city || '',
+        propertyType: listing.propertyType || 'Unknown',
+        bedrooms: listing.bedrooms,
+        bathrooms: listing.bathrooms,
+        sqft: listing.squareFootage,
+        currentPrice,
+        oldPrice: highestOldPrice,
+        dropDollar,
+        dropPercent,
+        dropDate: dropDate || listing.lastSeen || listing.createdDate || new Date().toISOString(),
+        daysOnMarket: listing.daysOnMarket,
+        status: listing.status
+      });
+    }
+  }
+
+  return drops;
+}
+
+// --- Rendering ---
+
+function renderCards(drops) {
+  const container = document.getElementById('cards-container');
+
+  if (drops.length === 0) {
+    container.innerHTML = '<div class="no-results">No price drops matching your filters. Try adjusting the filters above.</div>';
+    return;
+  }
+
+  container.innerHTML = drops.map((d, i) => {
+    const rank = i + 1;
+    const severity = getSeverity(d.dropPercent);
+    const rankClass = rank === 1 ? 'gold' : rank === 2 ? 'silver' : rank === 3 ? 'bronze' : '';
+    const pctClass = 'pct-' + severity;
+
+    return `
+      <div class="property-card severity-${severity}">
+        <div class="rank ${rankClass}">#${rank}</div>
+        <div class="card-details">
+          <div class="card-address">${d.address}</div>
+          <div class="card-neighborhood">${d.neighborhood}${d.zip ? ' ' + d.zip : ''}</div>
+          <div class="card-tags">
+            <span class="tag tag-type">${d.propertyType}</span>
+            ${d.bedrooms != null ? `<span class="tag">${d.bedrooms} bd</span>` : ''}
+            ${d.bathrooms != null ? `<span class="tag">${d.bathrooms} ba</span>` : ''}
+            ${d.sqft ? `<span class="tag">${d.sqft.toLocaleString()} sqft</span>` : ''}
+            ${d.daysOnMarket != null ? `<span class="tag">${d.daysOnMarket} DOM</span>` : ''}
+          </div>
+          <div class="card-time">dropped ${timeAgo(d.dropDate)}</div>
+        </div>
+        <div class="card-price">
+          <div class="price-old">${formatCurrencyFull(d.oldPrice)}</div>
+          <div class="price-new">${formatCurrencyFull(d.currentPrice)}</div>
+          <div class="price-drop-amount">-${formatCurrency(d.dropDollar)}</div>
+          <span class="price-drop-pct ${pctClass}">-${d.dropPercent.toFixed(1)}%</span>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function updateStats(drops) {
+  // Header stats
+  document.getElementById('hdr-drops').textContent = drops.length;
+  if (drops.length > 0) {
+    const avgPct = drops.reduce((s, d) => s + d.dropPercent, 0) / drops.length;
+    document.getElementById('hdr-avg').textContent = avgPct.toFixed(1) + '%';
+    const biggestDollar = Math.max(...drops.map(d => d.dropDollar));
+    document.getElementById('hdr-biggest').textContent = formatCurrency(biggestDollar);
+  }
+
+  // Stats bar
+  if (drops.length > 0) {
+    const biggestPct = Math.max(...drops.map(d => d.dropPercent));
+    document.getElementById('stat-biggest-pct').textContent = biggestPct.toFixed(1) + '%';
+    document.getElementById('stat-total-scanned').textContent = totalScanned.toLocaleString();
+    const totalShed = drops.reduce((s, d) => s + d.dropDollar, 0);
+    document.getElementById('stat-total-value').textContent = formatCurrency(totalShed);
+    const sortedDrops = [...drops].sort((a, b) => a.dropDollar - b.dropDollar);
+    const median = sortedDrops[Math.floor(sortedDrops.length / 2)].dropDollar;
+    document.getElementById('stat-median-drop').textContent = formatCurrency(median);
+  }
+}
+
+// --- Filters ---
+
+function applyFilters() {
+  const activeType = document.querySelector('#type-filters .filter-btn.active')?.dataset.type || 'all';
+  const activeThreshold = document.querySelector('#threshold-filters .filter-btn.active')?.dataset.threshold || null;
+  const sortBy = document.getElementById('sort-select').value;
+
+  let filtered = [...allDrops];
+
+  if (activeType !== 'all') {
+    filtered = filtered.filter(d => d.propertyType === activeType);
+  }
+
+  if (activeThreshold) {
+    filtered = filtered.filter(d => d.dropPercent >= parseFloat(activeThreshold));
+  }
+
+  switch (sortBy) {
+    case 'dropDollar':
+      filtered.sort((a, b) => b.dropDollar - a.dropDollar);
+      break;
+    case 'dropPercent':
+      filtered.sort((a, b) => b.dropPercent - a.dropPercent);
+      break;
+    case 'mostRecent':
+      filtered.sort((a, b) => new Date(b.dropDate) - new Date(a.dropDate));
+      break;
+    case 'lowestPrice':
+      filtered.sort((a, b) => a.currentPrice - b.currentPrice);
+      break;
+  }
+
+  renderCards(filtered);
+}
+
+// --- Event Listeners ---
+
+document.getElementById('type-filters').addEventListener('click', e => {
+  if (!e.target.classList.contains('filter-btn')) return;
+  document.querySelectorAll('#type-filters .filter-btn').forEach(b => b.classList.remove('active'));
+  e.target.classList.add('active');
+  applyFilters();
+});
+
+document.getElementById('threshold-filters').addEventListener('click', e => {
+  if (!e.target.classList.contains('filter-btn')) return;
+  const wasActive = e.target.classList.contains('active');
+  document.querySelectorAll('#threshold-filters .filter-btn').forEach(b => b.classList.remove('active'));
+  if (!wasActive) e.target.classList.add('active');
+  applyFilters();
+});
+
+function toggleAccordion(btn) {
+  btn.classList.toggle('open');
+  btn.nextElementSibling.classList.toggle('open');
+}
+
+// --- Main Load ---
+
+async function loadData() {
+  const apiKey = getApiKey();
+  if (!apiKey) {
+    document.getElementById('api-setup').style.display = 'block';
+    return;
+  }
+
+  document.getElementById('api-setup').style.display = 'none';
+  const container = document.getElementById('cards-container');
+  container.innerHTML = '<div class="loading"><div class="spinner"></div>Scanning Austin listings for price drops...</div>';
+
+  try {
+    // Try cache first
+    let listings = getCachedData();
+    let fromCache = !!listings;
+
+    if (!listings) {
+      listings = await fetchListings(apiKey);
+      setCachedData(listings);
+    }
+
+    // Handle if API returns an array or object with results
+    const listingsArray = Array.isArray(listings) ? listings : (listings.listings || listings.data || []);
+
+    totalScanned = listingsArray.length;
+    allDrops = detectPriceDrops(listingsArray);
+
+    // Default sort: biggest dollar drop
+    allDrops.sort((a, b) => b.dropDollar - a.dropDollar);
+
+    document.getElementById('controls').style.display = 'flex';
+    document.getElementById('stats-bar').style.display = 'grid';
+
+    updateStats(allDrops);
+    renderCards(allDrops);
+
+    if (fromCache) {
+      const cacheAge = Date.now() - JSON.parse(localStorage.getItem(CACHE_KEY)).timestamp;
+      const hrs = Math.floor(cacheAge / 3600000);
+      console.log('Using cached data (' + hrs + 'h old). Will refresh after 24h.');
+    }
+
+  } catch (err) {
+    console.error('Load error:', err);
+
+    // Try to show cached data on error
+    const cached = getCachedData();
+    if (cached) {
+      const listingsArray = Array.isArray(cached) ? cached : (cached.listings || cached.data || []);
+      totalScanned = listingsArray.length;
+      allDrops = detectPriceDrops(listingsArray);
+      allDrops.sort((a, b) => b.dropDollar - a.dropDollar);
+      document.getElementById('controls').style.display = 'flex';
+      document.getElementById('stats-bar').style.display = 'grid';
+      updateStats(allDrops);
+      renderCards(allDrops);
+      container.insertAdjacentHTML('beforebegin', '<div class="error-msg">&#9888; API error — showing cached data. ' + err.message + '</div>');
+    } else {
+      container.innerHTML = '<div class="error-msg">&#9888; ' + err.message + '<br><br>Check your API key and try again.</div>';
+    }
+  }
+}
+
+// Init
+if (getApiKey()) {
+  document.getElementById('api-setup').style.display = 'none';
+  loadData();
+} else {
+  document.getElementById('api-setup').style.display = 'block';
+}
+</script>
+
+</body>
+</html>
