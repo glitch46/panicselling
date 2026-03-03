@@ -598,7 +598,7 @@ footer a:hover { text-decoration: underline; }
 <script>
 const CACHE_KEY = 'panicselling_austin_data';
 const CACHE_TTL = 24 * 60 * 60 * 1000; // 24 hours
-const API_KEY = 'aaf58d54194c477ab9a37a089339756c';
+const WORKER_URL = 'https://panicselling-proxy.panicselling.workers.dev';
 
 let allDrops = [];
 let totalScanned = 0;
@@ -636,10 +636,8 @@ function getSeverity(pct) {
 // --- Data Fetching ---
 
 async function fetchListings() {
-  const url = 'https://api.rentcast.io/v1/listings/sale?city=Austin&state=TX&status=Active&limit=500';
-  const resp = await fetch(url, {
-    headers: { 'X-Api-Key': API_KEY, 'Accept': 'application/json' }
-  });
+  const url = WORKER_URL + '?city=Austin&state=TX&status=Active&limit=500';
+  const resp = await fetch(url);
   if (!resp.ok) {
     const text = await resp.text();
     throw new Error('API error ' + resp.status + ': ' + text);
