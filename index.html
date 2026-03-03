@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Panic Selling Austin - Real Estate Price Drop Tracker</title>
+<title>Panic at the Disco - Austin Real Estate Price Drop Tracker</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
@@ -75,7 +75,8 @@ header {
 }
 
 .logo h1 .panic { color: var(--burnt-orange); }
-.logo h1 .selling { color: var(--text-dim); }
+.logo h1 .at-the { color: var(--text-dim); }
+.logo h1 .disco { color: var(--warm-gold); }
 .logo h1 .austin { color: #aaa; font-weight: 400; font-size: 14px; display: block; letter-spacing: 4px; }
 
 .header-stats {
@@ -495,7 +496,7 @@ footer a:hover { text-decoration: underline; }
   <div class="container header-inner">
     <div class="logo">
       <span class="logo-star">&#9733;</span>
-      <h1><span class="panic">PANIC</span> <span class="selling">SELLING</span><span class="austin">AUSTIN, TX</span></h1>
+      <h1><span class="panic">PANIC</span> <span class="at-the">AT THE</span> <span class="disco">DISCO</span><span class="austin">AUSTIN, TX</span></h1>
     </div>
     <div class="header-stats">
       <div class="header-stat">
@@ -591,12 +592,12 @@ footer a:hover { text-decoration: underline; }
 
 <footer>
   <div class="container">
-    Powered by <a href="https://www.rentcast.io" target="_blank">RentCast</a> &bull; Inspired by <a href="https://panicselling.xyz" target="_blank">panicselling.xyz</a> &bull; Austin, TX &#9733;
+    Powered by <a href="https://www.rentcast.io" target="_blank">RentCast</a> &bull; Panic at the Disco &bull; Austin, TX &#9733;
   </div>
 </footer>
 
 <script>
-const CACHE_KEY = 'panicselling_austin_data';
+const CACHE_KEY = 'panicatthedisco_austin_data';
 const CACHE_TTL = 24 * 60 * 60 * 1000; // 24 hours
 const WORKER_URL = 'https://panicselling-proxy.panicselling.workers.dev';
 
@@ -848,7 +849,7 @@ function toggleAccordion(btn) {
 
 async function loadData() {
   const container = document.getElementById('cards-container');
-  container.innerHTML = '<div class="loading"><div class="spinner"></div>Scanning Austin listings for price drops...</div>';
+  container.innerHTML = '<div class="loading"><div class="spinner"></div>Scanning Austin listings for price disco drops...</div>';
 
   try {
     // Try cache first
