@@ -669,33 +669,39 @@ function detectPriceDrops(listings) {
     const currentPrice = listing.price;
     if (!currentPrice) continue;
 
+    // Only include listings marked Active with no removedDate
+    if (listing.status !== 'Active') continue;
+    if (listing.removedDate) continue;
+
+    // Parse history (may be an object keyed by date or an array)
+    if (!listing.history) continue;
+    const events = Array.isArray(listing.history)
+      ? listing.history
+      : Object.entries(listing.history).map(([date, evt]) => ({ ...evt, date }));
+
+    if (events.length < 2) continue; // Need at least 2 entries to detect a drop
+
+    // Sort events by date descending to find the current (most recent) listing
+    events.sort((a, b) => new Date(b.date || b.listedDate) - new Date(a.date || a.listedDate));
+    const currentEntry = events[0];
+
+    // The current entry must still be active (no removedDate)
+    if (currentEntry.removedDate) continue;
+
+    // Find the highest price from older entries
     let highestOldPrice = null;
     let dropDate = null;
 
-    // Check the history for price events (may be an object keyed by date or an array)
-    if (listing.history) {
-      const events = Array.isArray(listing.history)
-        ? listing.history
-        : Object.entries(listing.history).map(([date, evt]) => ({ ...evt, date }));
-
-      for (const event of events) {
-        const eventPrice = event.price;
-        if (eventPrice && eventPrice > currentPrice) {
-          if (!highestOldPrice || eventPrice > highestOldPrice) {
-            highestOldPrice = eventPrice;
-          }
-          const eventDate = event.date || event.listedDate;
-          if (eventDate && (!dropDate || new Date(eventDate) > new Date(dropDate))) {
-            dropDate = eventDate;
-          }
+    for (let i = 1; i < events.length; i++) {
+      const eventPrice = events[i].price;
+      if (eventPrice && eventPrice > currentPrice) {
+        if (!highestOldPrice || eventPrice > highestOldPrice) {
+          highestOldPrice = eventPrice;
         }
-      }
-    }
-
-    // Also check listedPrice / previousPrice fields if present
-    if (listing.listedPrice && listing.listedPrice > currentPrice) {
-      if (!highestOldPrice || listing.listedPrice > highestOldPrice) {
-        highestOldPrice = listing.listedPrice;
+        const eventDate = events[i].date || events[i].listedDate;
+        if (eventDate && (!dropDate || new Date(eventDate) > new Date(dropDate))) {
+          dropDate = eventDate;
+        }
       }
     }
 
