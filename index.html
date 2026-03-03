@@ -511,7 +511,7 @@ footer a:hover { text-decoration: underline; }
         <div class="value" id="hdr-biggest">—</div>
         <div class="label">Biggest Drop</div>
       </div>
-      <div class="live-label"><span class="pulse-dot"></span> LIVE</div>
+      <div class="live-label"><span class="pulse-dot"></span> <span id="live-text">LIVE</span></div>
     </div>
   </div>
 </header>
@@ -539,7 +539,7 @@ footer a:hover { text-decoration: underline; }
         </div>
         <div class="step">
           <div class="step-num">4</div>
-          <div class="step-text"><strong>Cache</strong> — Data cached 24h to stay within API limits. Fresh data daily.</div>
+          <div class="step-text"><strong>Refresh</strong> — Data refreshed daily via automated pipeline.</div>
         </div>
       </div>
     </div>
@@ -597,10 +597,6 @@ footer a:hover { text-decoration: underline; }
 </footer>
 
 <script>
-const CACHE_KEY = 'panicatthedisco_austin_data';
-const CACHE_TTL = 24 * 60 * 60 * 1000; // 24 hours
-const WORKER_URL = 'https://panicselling-proxy.panicselling.workers.dev';
-
 let allDrops = [];
 let totalScanned = 0;
 
@@ -632,105 +628,6 @@ function getSeverity(pct) {
   if (pct >= 20) return 'big';
   if (pct >= 10) return 'medium';
   return 'small';
-}
-
-// --- Data Fetching ---
-
-async function fetchListings() {
-  const url = WORKER_URL + '?city=Austin&state=TX&status=Active&limit=500';
-  const resp = await fetch(url);
-  if (!resp.ok) {
-    const text = await resp.text();
-    throw new Error('API error ' + resp.status + ': ' + text);
-  }
-  return resp.json();
-}
-
-function getCachedData() {
-  try {
-    const raw = localStorage.getItem(CACHE_KEY);
-    if (!raw) return null;
-    const cached = JSON.parse(raw);
-    if (Date.now() - cached.timestamp < CACHE_TTL) return cached.data;
-  } catch (e) {}
-  return null;
-}
-
-function setCachedData(data) {
-  localStorage.setItem(CACHE_KEY, JSON.stringify({ timestamp: Date.now(), data }));
-}
-
-// --- Price Drop Detection ---
-
-function detectPriceDrops(listings) {
-  const drops = [];
-
-  for (const listing of listings) {
-    const currentPrice = listing.price;
-    if (!currentPrice) continue;
-
-    // Only include listings marked Active with no removedDate
-    if (listing.status !== 'Active') continue;
-    if (listing.removedDate) continue;
-
-    // Parse history (may be an object keyed by date or an array)
-    if (!listing.history) continue;
-    const events = Array.isArray(listing.history)
-      ? listing.history
-      : Object.entries(listing.history).map(([date, evt]) => ({ ...evt, date }));
-
-    if (events.length < 2) continue; // Need at least 2 entries to detect a drop
-
-    // Sort events by date descending to find the current (most recent) listing
-    events.sort((a, b) => new Date(b.date || b.listedDate) - new Date(a.date || a.listedDate));
-    const currentEntry = events[0];
-
-    // The current entry must still be active (no removedDate)
-    if (currentEntry.removedDate) continue;
-
-    // Find the highest price from older entries
-    let highestOldPrice = null;
-    let dropDate = null;
-
-    for (let i = 1; i < events.length; i++) {
-      const eventPrice = events[i].price;
-      if (eventPrice && eventPrice > currentPrice) {
-        if (!highestOldPrice || eventPrice > highestOldPrice) {
-          highestOldPrice = eventPrice;
-        }
-        const eventDate = events[i].date || events[i].listedDate;
-        if (eventDate && (!dropDate || new Date(eventDate) > new Date(dropDate))) {
-          dropDate = eventDate;
-        }
-      }
-    }
-
-    if (highestOldPrice && highestOldPrice > currentPrice) {
-      const dropDollar = highestOldPrice - currentPrice;
-      const dropPercent = (dropDollar / highestOldPrice) * 100;
-
-      drops.push({
-        address: listing.formattedAddress || listing.addressLine1 || 'Unknown',
-        city: listing.city || 'Austin',
-        state: listing.state || 'TX',
-        zip: listing.zipCode || '',
-        neighborhood: listing.county || listing.city || '',
-        propertyType: listing.propertyType || 'Unknown',
-        bedrooms: listing.bedrooms,
-        bathrooms: listing.bathrooms,
-        sqft: listing.squareFootage,
-        currentPrice,
-        oldPrice: highestOldPrice,
-        dropDollar,
-        dropPercent,
-        dropDate: dropDate || listing.lastSeen || listing.createdDate || new Date().toISOString(),
-        daysOnMarket: listing.daysOnMarket,
-        status: listing.status
-      });
-    }
-  }
-
-  return drops;
 }
 
 // --- Rendering ---
@@ -859,23 +756,15 @@ function toggleAccordion(btn) {
 
 async function loadData() {
   const container = document.getElementById('cards-container');
-  container.innerHTML = '<div class="loading"><div class="spinner"></div>Scanning Austin listings for price disco drops...</div>';
+  container.innerHTML = '<div class="loading"><div class="spinner"></div>Loading Austin price drop data...</div>';
 
   try {
-    // Try cache first
-    let listings = getCachedData();
-    let fromCache = !!listings;
+    const resp = await fetch('data/listings.json', { cache: 'no-cache' });
+    if (!resp.ok) throw new Error('Failed to load listings data');
+    const data = await resp.json();
 
-    if (!listings) {
-      listings = await fetchListings();
-      setCachedData(listings);
-    }
-
-    // Handle if API returns an array or object with results
-    const listingsArray = Array.isArray(listings) ? listings : (listings.listings || listings.data || []);
-
-    totalScanned = listingsArray.length;
-    allDrops = detectPriceDrops(listingsArray);
+    totalScanned = data.totalScanned || 0;
+    allDrops = data.drops || [];
 
     // Default sort: biggest dollar drop
     allDrops.sort((a, b) => b.dropDollar - a.dropDollar);
@@ -886,30 +775,16 @@ async function loadData() {
     updateStats(allDrops);
     renderCards(allDrops);
 
-    if (fromCache) {
-      const cacheAge = Date.now() - JSON.parse(localStorage.getItem(CACHE_KEY)).timestamp;
-      const hrs = Math.floor(cacheAge / 3600000);
-      console.log('Using cached data (' + hrs + 'h old). Will refresh after 24h.');
+    // Update LIVE label with generation date
+    if (data.generated) {
+      const d = new Date(data.generated);
+      const label = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+      document.getElementById('live-text').textContent = 'Updated ' + label;
     }
 
   } catch (err) {
     console.error('Load error:', err);
-
-    // Try to show cached data on error
-    const cached = getCachedData();
-    if (cached) {
-      const listingsArray = Array.isArray(cached) ? cached : (cached.listings || cached.data || []);
-      totalScanned = listingsArray.length;
-      allDrops = detectPriceDrops(listingsArray);
-      allDrops.sort((a, b) => b.dropDollar - a.dropDollar);
-      document.getElementById('controls').style.display = 'flex';
-      document.getElementById('stats-bar').style.display = 'grid';
-      updateStats(allDrops);
-      renderCards(allDrops);
-      container.insertAdjacentHTML('beforebegin', '<div class="error-msg">&#9888; API error — showing cached data. ' + err.message + '</div>');
-    } else {
-      container.innerHTML = '<div class="error-msg">&#9888; ' + err.message + '<br><br>Check your API key and try again.</div>';
-    }
+    container.innerHTML = '<div class="error-msg">&#9888; ' + err.message + '</div>';
   }
 }
 
