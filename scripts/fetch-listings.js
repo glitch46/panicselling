@@ -43,7 +43,8 @@ function isStale(listing) {
 }
 
 function detectPriceDrops(listings) {
-  const drops = [];
+  const recentDrops = [];
+  const fallbackDrops = [];
 
   for (const listing of listings) {
     const currentPrice = listing.price;
@@ -75,10 +76,12 @@ function detectPriceDrops(listings) {
     }
 
     if (highestOldPrice && highestOldPrice > currentPrice) {
-      const finalDropDate = dropDate || listing.lastSeen || listing.createdDate;
+      const finalDropDate = dropDate || listing.lastSeenDate || listing.lastSeen || listing.listedDate || listing.createdDate;
       const sixMonthsAgo = new Date();
       sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
-      if (!finalDropDate || new Date(finalDropDate) < sixMonthsAgo) continue;
+      const twelveMonthsAgo = new Date();
+      twelveMonthsAgo.setMonth(twelveMonthsAgo.getMonth() - 12);
+      if (!finalDropDate || new Date(finalDropDate) < twelveMonthsAgo) continue;
 
       const mlsNumber = getMlsNumber(listing);
       if (!mlsNumber) continue;
@@ -86,7 +89,7 @@ function detectPriceDrops(listings) {
       const dropDollar = highestOldPrice - currentPrice;
       const dropPercent = (dropDollar / highestOldPrice) * 100;
 
-      drops.push({
+      const dropRecord = {
         address: listing.formattedAddress || listing.addressLine1 || 'Unknown',
         city: listing.city || 'Austin',
         state: listing.state || 'TX',
@@ -105,11 +108,18 @@ function detectPriceDrops(listings) {
         status: listing.status,
         mlsNumber,
         sourceLink: getSourceLink(listing),
-      });
+      };
+
+      if (new Date(finalDropDate) >= sixMonthsAgo) {
+        recentDrops.push(dropRecord);
+      } else {
+        fallbackDrops.push(dropRecord);
+      }
     }
   }
 
-  // Sort by biggest dollar drop
+  // Prefer recent drops; if none exist, fall back to <=12 month drops
+  const drops = recentDrops.length > 0 ? recentDrops : fallbackDrops;
   drops.sort((a, b) => b.dropDollar - a.dropDollar);
   return drops;
 }

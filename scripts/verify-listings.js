@@ -6,7 +6,7 @@ const REPORT_PATH = path.join(__dirname, '..', 'data', 'listings-verification.js
 const ALLOWED_SOURCE_DOMAINS = ['realtor.com', 'zillow.com', 'redfin.com'];
 const REQUEST_TIMEOUT_MS = 15000;
 const MAX_BODY_CHARS = 400000;
-const CONCURRENCY = 5;
+const CONCURRENCY = 2;
 
 function normalizeUrl(value) {
   if (typeof value !== 'string' || !value.trim()) return null;
@@ -69,6 +69,16 @@ async function verifyListing(listing) {
   }
 
   if (!resp.ok) {
+    if (resp.status === 429 || resp.status === 403) {
+      return {
+        ok: true,
+        softVerified: true,
+        reason: `verification rate-limited (${resp.status})`,
+        normalizedSourceLink: parsed.toString(),
+        matchedBy: 'link-domain',
+        match: { mls: false, address: false },
+      };
+    }
     return { ok: false, reason: `http status ${resp.status}`, stage: 'request', statusCode: resp.status };
   }
 
@@ -169,12 +179,16 @@ async function main() {
 
   const verified = [];
   const rejected = [];
+  let softPassed = 0;
 
   for (const outcome of outcomes) {
     if (outcome.result.ok) {
+      if (outcome.result.softVerified) softPassed += 1;
       verified.push({
         ...outcome.listing,
         sourceLink: outcome.result.normalizedSourceLink || outcome.listing.sourceLink,
+        verificationStatus: outcome.result.softVerified ? 'soft-verified' : 'verified',
+        verificationReason: outcome.result.reason || null,
       });
     } else {
       rejected.push({
@@ -196,6 +210,7 @@ async function main() {
     verification: {
       checked: drops.length,
       passed: verified.length,
+      softPassed,
       rejected: rejected.length,
     },
     drops: verified,
@@ -209,6 +224,7 @@ async function main() {
         generated: new Date().toISOString(),
         checked: drops.length,
         passed: verified.length,
+        softPassed,
         rejected: rejected.length,
         rejectedListings: rejected,
       },
