@@ -9,6 +9,8 @@ if (!API_KEY) {
 
 const API_URL = 'https://api.rentcast.io/v1/listings/sale?city=Austin&state=TX&status=Active&limit=500';
 
+const ALLOWED_SOURCE_DOMAINS = ['realtor.com', 'zillow.com', 'redfin.com'];
+
 async function fetchListings() {
   const resp = await fetch(API_URL, {
     headers: { 'X-Api-Key': API_KEY, Accept: 'application/json' },
@@ -74,9 +76,12 @@ function detectPriceDrops(listings) {
 
     if (highestOldPrice && highestOldPrice > currentPrice) {
       const finalDropDate = dropDate || listing.lastSeen || listing.createdDate;
-      const twelveMonthsAgo = new Date();
-      twelveMonthsAgo.setFullYear(twelveMonthsAgo.getFullYear() - 1);
-      if (!finalDropDate || new Date(finalDropDate) < twelveMonthsAgo) continue;
+      const sixMonthsAgo = new Date();
+      sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+      if (!finalDropDate || new Date(finalDropDate) < sixMonthsAgo) continue;
+
+      const mlsNumber = getMlsNumber(listing);
+      if (!mlsNumber) continue;
 
       const dropDollar = highestOldPrice - currentPrice;
       const dropPercent = (dropDollar / highestOldPrice) * 100;
@@ -98,6 +103,8 @@ function detectPriceDrops(listings) {
         dropDate: finalDropDate,
         daysOnMarket: listing.daysOnMarket,
         status: listing.status,
+        mlsNumber,
+        sourceLink: getSourceLink(listing),
       });
     }
   }
@@ -105,6 +112,84 @@ function detectPriceDrops(listings) {
   // Sort by biggest dollar drop
   drops.sort((a, b) => b.dropDollar - a.dropDollar);
   return drops;
+}
+
+function normalizeUrl(value) {
+  if (typeof value !== 'string' || !value.trim()) return null;
+  const trimmed = value.trim();
+  const url = /^https?:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`;
+  try {
+    return new URL(url);
+  } catch {
+    return null;
+  }
+}
+
+function isAllowedListingDomain(hostname) {
+  const host = String(hostname || '').toLowerCase();
+  return ALLOWED_SOURCE_DOMAINS.some(domain => host === domain || host.endsWith(`.${domain}`));
+}
+
+function getSourceLink(listing) {
+  const candidates = [
+    listing.sourceUrl,
+    listing.sourceURL,
+    listing.listingUrl,
+    listing.url,
+    listing.realtorUrl,
+    listing.redfinUrl,
+    listing.zillowUrl,
+    listing.externalUrl,
+    listing.permalink,
+  ];
+
+  for (const candidate of candidates) {
+    const parsed = normalizeUrl(candidate);
+    if (!parsed) continue;
+    if (isAllowedListingDomain(parsed.hostname)) return parsed.toString();
+  }
+
+  const fallbackFromId = buildRealtorFallbackLink(listing);
+  if (fallbackFromId) return fallbackFromId;
+
+  return null;
+}
+
+function buildRealtorFallbackLink(listing) {
+  if (!listing || typeof listing.id !== 'string' || !listing.id.trim()) return null;
+
+  const city = String(listing.city || '').trim();
+  const state = String(listing.state || '').trim();
+  if (!city || !state) return null;
+
+  const stateUpper = state.toUpperCase();
+  const normalizedCity = city.replace(/\s+/g, '-');
+  const candidate = `https://www.realtor.com/realestateandhomes-detail/${listing.id}`;
+  const parsed = normalizeUrl(candidate);
+  if (!parsed) return null;
+
+  if (!parsed.pathname.toLowerCase().includes(`-${normalizedCity.toLowerCase()}-${stateUpper.toLowerCase()}`)) {
+    return parsed.toString();
+  }
+
+  return parsed.toString();
+}
+
+function getMlsNumber(listing) {
+  const candidates = [
+    listing.mlsNumber,
+    listing.mlsId,
+    listing.mlsID,
+    listing.mls,
+  ];
+
+  for (const candidate of candidates) {
+    if (candidate == null) continue;
+    const normalized = String(candidate).trim();
+    if (normalized) return normalized;
+  }
+
+  return null;
 }
 
 async function main() {

@@ -662,8 +662,9 @@ function renderCards(drops) {
             ${d.bathrooms != null ? `<span class="tag">${d.bathrooms} ba</span>` : ''}
             ${d.sqft ? `<span class="tag">${d.sqft.toLocaleString()} sqft</span>` : ''}
             ${d.daysOnMarket != null ? `<span class="tag">${d.daysOnMarket} DOM</span>` : ''}
+            ${d.mlsNumber ? `<span class="tag">MLS# ${d.mlsNumber}</span>` : ''}
           </div>
-          <div class="card-time">dropped ${timeAgo(d.dropDate)}</div>
+          <div class="card-time">dropped ${timeAgo(d.dropDate)}${d.sourceLink ? ` · <a href="${d.sourceLink}" target="_blank" rel="noopener noreferrer">listing link</a>` : ''}</div>
         </div>
         <div class="card-price">
           <div class="price-old">${formatCurrencyFull(d.oldPrice)}</div>
