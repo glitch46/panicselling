@@ -1,8 +1,6 @@
 name: Refresh listings data
 
 on:
-  schedule:
-    - cron: '0 */4 * * *'
   workflow_dispatch:
 
 permissions:
@@ -23,16 +21,11 @@ jobs:
         env:
           RENTCAST_API_KEY: ${{ secrets.RENTCAST_API_KEY }}
 
-      - name: Fetch rental listings
-        run: node scripts/fetch-rentals.js
-        env:
-          RENTCAST_API_KEY: ${{ secrets.RENTCAST_API_KEY }}
-
       - name: Commit and push
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add data/listings.json data/rentals.json data/median-rents.json
+          git add data/listings.json
           git diff --quiet --cached && echo "No changes" && exit 0
           git commit -m "chore: refresh listings data"
           git push
