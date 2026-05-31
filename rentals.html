@@ -3,831 +3,827 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Panic at the Disco - Austin Rental Hot Deals</title>
+<title>The Lease You Can Do - Austin Rental Deals</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+*, *::before, *::after { box-sizing: border-box; }
 
 :root {
-  --bg: #0c0c14;
-  --bg-card: #13131f;
-  --bg-card-hover: #1a1a2e;
-  --border: #1e1e30;
-  --burnt-orange: #BF5700;
-  --texas-red: #CC0000;
-  --warm-gold: #D4A017;
-  --cyan: #00d4ff;
-  --text: #e0e0e0;
-  --text-dim: #888;
-  --text-muted: #555;
-  --green: #00c853;
-  --drop-big: #ff1744;
-  --drop-medium: #ff6d00;
-  --drop-small: #ffc107;
+  --bg: #FAFAFA;
+  --surface: #FFFFFF;
+  --text: #1A1A1A;
+  --secondary: #666666;
+  --muted: #999999;
+  --accent: #00D4FF;
+  --border: #E5E5E5;
+  --skeleton: #F0F0F0;
+  --danger: #FF3366;
 }
 
+html { background: var(--bg); }
+
 body {
-  font-family: 'Inter', -apple-system, sans-serif;
+  margin: 0;
   background: var(--bg);
   color: var(--text);
-  min-height: 100vh;
-  line-height: 1.5;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 14px;
+  line-height: 24px;
+}
+
+button, select { font: inherit; }
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.num,
+.metric-value,
+.specs,
+.rent,
+.median,
+.delta,
+.rank,
+.link-row a,
+.micro,
+.empty,
+.loading-block,
+.timestamp,
+.sort-select,
+.filter-btn {
+  font-family: 'IBM Plex Mono', 'SFMono-Regular', Consolas, monospace;
 }
 
 .container {
-  max-width: 1200px;
+  width: min(1184px, calc(100% - 32px));
   margin: 0 auto;
-  padding: 0 20px;
 }
 
-/* Header */
-header {
+.site-header {
   border-bottom: 1px solid var(--border);
-  padding: 20px 0;
+  background: var(--surface);
 }
 
 .header-inner {
+  position: relative;
   display: flex;
+  align-items: center;
   justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 16px;
+  min-height: 64px;
+  gap: 24px;
 }
 
-.logo {
+.brand-block {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 24px;
 }
 
-.logo-star {
-  font-size: 28px;
-  color: var(--warm-gold);
-}
-
-.logo h1 {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 24px;
+.wordmark {
+  font-family: 'IBM Plex Mono', 'SFMono-Regular', Consolas, monospace;
+  font-size: 14px;
   font-weight: 700;
-  letter-spacing: 2px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
 }
-
-.logo h1 .panic { color: var(--burnt-orange); }
-.logo h1 .at-the { color: var(--text-dim); }
-.logo h1 .disco { color: var(--warm-gold); }
-.logo h1 .subtitle { color: #aaa; font-weight: 400; font-size: 14px; display: block; letter-spacing: 4px; }
 
 .nav-links {
   display: flex;
+  align-items: center;
   gap: 8px;
-  margin-top: 4px;
 }
 
 .nav-links a {
-  font-size: 11px;
-  color: var(--text-dim);
-  text-decoration: none;
-  padding: 2px 8px;
   border: 1px solid var(--border);
-  border-radius: 4px;
-  font-family: 'JetBrains Mono', monospace;
-  transition: all 0.2s;
-}
-
-.nav-links a:hover { border-color: var(--burnt-orange); color: var(--text); }
-.nav-links a.active { background: var(--burnt-orange); border-color: var(--burnt-orange); color: white; }
-
-.header-stats {
-  display: flex;
-  gap: 24px;
-  align-items: center;
-  flex-wrap: wrap;
-}
-
-.header-stat {
-  text-align: center;
-}
-
-.header-stat .value {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 20px;
-  font-weight: 700;
-  color: var(--cyan);
-}
-
-.header-stat .label {
-  font-size: 11px;
-  color: var(--text-dim);
+  color: var(--secondary);
+  font-size: 10px;
+  letter-spacing: 0.05em;
+  line-height: 16px;
+  padding: 8px 16px;
   text-transform: uppercase;
-  letter-spacing: 1px;
+  transition: border-color 150ms ease-out, color 150ms ease-out, background 150ms ease-out;
 }
 
-.pulse-dot {
-  width: 10px;
-  height: 10px;
-  background: var(--green);
-  border-radius: 50%;
-  animation: pulse 2s infinite;
-  display: inline-block;
+.nav-links a:hover,
+.nav-links a.active {
+  border-color: var(--accent);
+  color: var(--text);
+}
+
+.status-line {
+  position: relative;
+  color: var(--secondary);
+  font-size: 12px;
+  padding-left: 16px;
+  text-align: right;
+}
+
+.live-dot {
+  position: absolute;
+  left: 0;
+  top: 8px;
+  width: 8px;
+  height: 8px;
+  background: var(--accent);
+  animation: pulse 2s ease-out infinite;
 }
 
 @keyframes pulse {
-  0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(0,200,83,0.5); }
-  50% { opacity: 0.7; box-shadow: 0 0 0 8px rgba(0,200,83,0); }
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.32; }
 }
 
-.live-label {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 12px;
-  color: var(--green);
-  font-family: 'JetBrains Mono', monospace;
+.hero {
+  padding: 48px 0 24px;
 }
 
-/* How It Works Accordion */
-.accordion {
-  margin: 24px 0;
-}
-
-.accordion-toggle {
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 16px 20px;
-  width: 100%;
-  text-align: left;
-  color: var(--text);
-  font-size: 14px;
+.kicker {
+  color: var(--secondary);
+  font-size: 10px;
   font-weight: 600;
-  cursor: pointer;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  transition: background 0.2s;
+  letter-spacing: 0.05em;
+  line-height: 16px;
+  margin: 0 0 8px;
+  text-transform: uppercase;
 }
 
-.accordion-toggle:hover { background: var(--bg-card-hover); }
-
-.accordion-toggle .arrow {
-  transition: transform 0.3s;
-  color: var(--burnt-orange);
+.headline {
+  font-size: 24px;
+  font-weight: 600;
+  line-height: 32px;
+  margin: 0;
 }
 
-.accordion-toggle.open .arrow { transform: rotate(180deg); }
-
-.accordion-content {
-  max-height: 0;
-  overflow: hidden;
-  transition: max-height 0.3s ease;
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-top: none;
-  border-radius: 0 0 8px 8px;
+.subhead {
+  color: var(--secondary);
+  margin: 8px 0 0;
+  max-width: 704px;
 }
 
-.accordion-content.open { max-height: 400px; }
-
-.accordion-content-inner {
-  padding: 20px;
+.metrics-bar {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  grid-template-columns: repeat(4, 1fr);
+  min-height: 96px;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  margin: 24px 0 48px;
+}
+
+.metric {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 96px;
+  padding: 24px;
+}
+
+.metric + .metric { border-left: 1px solid var(--border); }
+
+.metric-label {
+  color: var(--secondary);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  line-height: 16px;
+  text-transform: uppercase;
+}
+
+.metric-value {
+  color: var(--text);
+  font-size: 32px;
+  font-weight: 700;
+  line-height: 40px;
+  margin-top: 8px;
+}
+
+.metric-value.accent { color: var(--accent); }
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 24px;
+}
+
+.filter-stack {
+  display: flex;
+  flex-wrap: wrap;
   gap: 16px;
 }
 
-.step {
-  display: flex;
-  gap: 12px;
-  align-items: flex-start;
-}
-
-.step-num {
-  background: var(--burnt-orange);
-  color: white;
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 700;
-  font-size: 13px;
-  flex-shrink: 0;
-}
-
-.step-text {
-  font-size: 13px;
-  color: var(--text-dim);
-}
-
-.step-text strong { color: var(--text); }
-
-/* Filter Controls */
-.controls {
+.segmented {
   display: flex;
   flex-wrap: wrap;
-  gap: 12px;
-  align-items: center;
-  margin: 24px 0;
-}
-
-.filter-group {
-  display: flex;
-  gap: 4px;
-  flex-wrap: wrap;
+  min-height: 40px;
 }
 
 .filter-btn {
-  background: var(--bg-card);
+  height: 40px;
+  padding: 0 16px;
+  background: var(--surface);
   border: 1px solid var(--border);
-  color: var(--text-dim);
-  padding: 8px 14px;
-  border-radius: 6px;
-  font-size: 13px;
+  color: var(--secondary);
   cursor: pointer;
-  transition: all 0.2s;
-  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  line-height: 16px;
+  margin-left: -1px;
+  transition: background 150ms ease-out, border-color 150ms ease-out, color 150ms ease-out;
 }
 
-.filter-btn:hover {
-  border-color: var(--burnt-orange);
-  color: var(--text);
-}
+.filter-btn:first-child { margin-left: 0; }
+
+.filter-btn:hover { border-color: var(--accent); color: var(--text); }
 
 .filter-btn.active {
-  background: var(--burnt-orange);
-  border-color: var(--burnt-orange);
-  color: white;
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #FFFFFF;
+}
+
+.sort-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 40px;
+}
+
+.sort-label {
+  color: var(--secondary);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
 }
 
 .sort-select {
-  background: var(--bg-card);
-  border: 1px solid var(--border);
+  height: 40px;
+  padding: 0 24px 0 0;
+  border: 0;
+  border-bottom: 1px solid transparent;
+  background: transparent;
   color: var(--text);
-  padding: 8px 12px;
-  border-radius: 6px;
-  font-size: 13px;
   cursor: pointer;
-  font-family: 'Inter', sans-serif;
-  margin-left: auto;
+  font-size: 12px;
 }
 
-.sort-select:focus { outline: none; border-color: var(--burnt-orange); }
+.sort-select:hover,
+.sort-select:focus {
+  border-bottom-color: var(--accent);
+  outline: 0;
+}
 
-/* Stats Bar */
-.stats-bar {
+.cards-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 12px;
-  margin: 24px 0;
-}
-
-.stat-card {
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 16px 20px;
-  text-align: center;
-}
-
-.stat-card .stat-value {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 24px;
-  font-weight: 700;
-}
-
-.stat-card .stat-label {
-  font-size: 11px;
-  color: var(--text-dim);
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  margin-top: 4px;
-}
-
-.stat-red { color: var(--texas-red); }
-.stat-orange { color: var(--burnt-orange); }
-.stat-gold { color: var(--warm-gold); }
-.stat-cyan { color: var(--cyan); }
-
-/* Property Cards */
-.cards-list {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  margin: 24px 0;
-  padding-bottom: 60px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 24px;
+  padding-bottom: 64px;
 }
 
 .property-card {
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: 20px;
   display: grid;
-  grid-template-columns: 48px 1fr auto;
+  grid-template-columns: 48px 1fr;
   gap: 16px;
-  align-items: center;
-  transition: all 0.2s;
-  cursor: default;
-}
-
-.property-card:hover {
-  background: var(--bg-card-hover);
-  border-color: #2a2a40;
-  transform: translateY(-1px);
-}
-
-.property-card.severity-big { border-left: 3px solid var(--drop-big); }
-.property-card.severity-medium { border-left: 3px solid var(--drop-medium); }
-.property-card.severity-small { border-left: 3px solid var(--drop-small); }
-
-/* Rank */
-.rank {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 18px;
-  font-weight: 700;
-  text-align: center;
-  color: var(--text-dim);
-}
-
-.rank.gold { color: #FFD700; }
-.rank.silver { color: #C0C0C0; }
-.rank.bronze { color: #CD7F32; }
-
-/* Card Details */
-.card-details { min-width: 0; }
-
-.card-address {
-  font-weight: 600;
-  font-size: 15px;
-  margin-bottom: 2px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.card-neighborhood {
-  font-size: 12px;
-  color: var(--text-dim);
-  margin-bottom: 8px;
-}
-
-.card-tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-}
-
-.tag {
-  background: rgba(255,255,255,0.05);
+  background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 4px;
-  padding: 2px 8px;
-  font-size: 11px;
-  color: var(--text-dim);
-  font-family: 'JetBrains Mono', monospace;
+  border-radius: 2px;
+  padding: 24px;
+  transition: border-color 150ms ease-out;
 }
 
-.tag-type {
-  border-color: var(--burnt-orange);
-  color: var(--burnt-orange);
+.property-card:hover { border-color: var(--accent); }
+
+.rank {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 24px;
 }
 
-.tag-status {
-  border-color: var(--green);
-  color: var(--green);
+.card-main { min-width: 0; }
+
+.address {
+  color: var(--text);
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 24px;
+  margin: 0;
 }
 
-.card-time {
-  font-size: 11px;
-  color: var(--text-muted);
-  margin-top: 6px;
+.specs {
+  color: var(--secondary);
+  font-size: 12px;
+  line-height: 24px;
+  margin: 0 0 16px;
 }
 
-/* Price Section */
-.card-price {
-  text-align: right;
-  white-space: nowrap;
+.price-zone {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 16px;
+  align-items: end;
 }
 
-.price-median {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 13px;
-  color: var(--text-dim);
+.rent {
+  color: var(--text);
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 32px;
+}
+
+.median {
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 24px;
   text-decoration: line-through;
 }
 
-.price-rent {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 20px;
-  font-weight: 700;
+.delta-stack {
+  text-align: right;
+}
+
+.delta {
+  color: var(--accent);
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 24px;
+}
+
+.bar-track {
+  width: 96px;
+  height: 4px;
+  background: var(--border);
+  margin-top: 8px;
+}
+
+.bar-fill {
+  height: 4px;
+  background: var(--accent);
+}
+
+.link-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  grid-column: 2;
+  margin-top: 16px;
+}
+
+.link-row a {
+  border: 1px solid var(--border);
+  color: var(--secondary);
+  font-size: 10px;
+  letter-spacing: 0.05em;
+  line-height: 16px;
+  padding: 8px;
+  text-transform: uppercase;
+  transition: border-color 150ms ease-out, color 150ms ease-out;
+}
+
+.link-row a:hover {
+  border-color: var(--accent);
   color: var(--text);
 }
 
-.price-discount-amount {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 14px;
-  font-weight: 700;
-  color: var(--green);
-}
-
-.price-discount-pct {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 13px;
+.flag-row {
+  grid-column: 2;
+  margin-top: 16px;
+  color: var(--danger);
+  font-size: 10px;
   font-weight: 600;
-  padding: 2px 8px;
-  border-radius: 4px;
-  display: inline-block;
-  margin-top: 4px;
+  letter-spacing: 0.05em;
+  line-height: 16px;
+  text-transform: uppercase;
 }
 
-.pct-big { background: rgba(255,23,68,0.15); color: var(--drop-big); }
-.pct-medium { background: rgba(255,109,0,0.15); color: var(--drop-medium); }
-.pct-small { background: rgba(0,200,83,0.15); color: var(--green); }
-
-/* Loading */
 .loading {
-  text-align: center;
-  padding: 60px 20px;
-  color: var(--text-dim);
+  display: grid;
+  gap: 8px;
+  padding: 48px 0 96px;
 }
 
-.spinner {
-  width: 40px;
-  height: 40px;
-  border: 3px solid var(--border);
-  border-top-color: var(--burnt-orange);
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
-  margin: 0 auto 16px;
+.loading-block {
+  height: 16px;
+  background: var(--skeleton);
+  color: transparent;
 }
 
-@keyframes spin { to { transform: rotate(360deg); } }
+.loading-block:nth-child(1) { width: 64%; }
+.loading-block:nth-child(2) { width: 48%; }
+.loading-block:nth-child(3) { width: 56%; }
 
+.empty,
 .error-msg {
-  background: rgba(204,0,0,0.1);
-  border: 1px solid var(--texas-red);
-  border-radius: 8px;
-  padding: 16px 20px;
-  margin: 24px 0;
-  color: var(--texas-red);
-  font-size: 14px;
-}
-
-.no-results {
-  text-align: center;
-  padding: 60px 20px;
-  color: var(--text-dim);
-  font-size: 14px;
-}
-
-/* Footer */
-footer {
-  text-align: center;
-  padding: 20px;
-  color: var(--text-muted);
+  color: var(--muted);
   font-size: 12px;
+  line-height: 24px;
+  padding: 96px 0;
+  text-align: center;
+}
+
+.error-msg { color: var(--danger); }
+
+.site-footer {
   border-top: 1px solid var(--border);
+  color: var(--secondary);
+  font-size: 12px;
+  padding: 24px 0;
 }
 
-footer a { color: var(--burnt-orange); text-decoration: none; }
-footer a:hover { text-decoration: underline; }
-
-/* Responsive */
-@media (max-width: 768px) {
-  .header-inner { flex-direction: column; text-align: center; }
-  .header-stats { justify-content: center; }
-  .property-card { grid-template-columns: 36px 1fr; }
-  .card-price { grid-column: 1 / -1; text-align: left; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
-  .controls { flex-direction: column; align-items: stretch; }
-  .sort-select { margin-left: 0; }
-  .stats-bar { grid-template-columns: 1fr 1fr; }
+.site-footer a {
+  border-bottom: 1px solid var(--border);
 }
 
-@media (max-width: 480px) {
-  .logo h1 { font-size: 18px; }
-  .header-stat .value { font-size: 16px; }
-  .stats-bar { grid-template-columns: 1fr; }
-  .property-card { padding: 14px; }
-  .price-rent { font-size: 16px; }
+.site-footer a:hover { border-bottom-color: var(--accent); }
+
+@media (max-width: 880px) {
+  .header-inner,
+  .brand-block,
+  .toolbar {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .header-inner { padding: 16px 0; }
+
+  .brand-block { gap: 16px; }
+
+  .nav-links { width: 100%; }
+
+  .nav-links a {
+    flex: 1;
+    text-align: center;
+  }
+
+  .status-line { text-align: left; }
+
+  .metrics-bar,
+  .cards-grid { grid-template-columns: 1fr; }
+
+  .metric + .metric {
+    border-left: 0;
+    border-top: 1px solid var(--border);
+  }
+}
+
+@media (max-width: 520px) {
+  .container { width: min(100% - 32px, 1184px); }
+  .hero { padding-top: 32px; }
+  .metrics-bar { margin-bottom: 32px; }
+
+  .metric {
+    min-height: 80px;
+    padding: 16px 0;
+  }
+
+  .metric-value {
+    font-size: 24px;
+    line-height: 32px;
+  }
+
+  .filter-stack,
+  .segmented,
+  .sort-wrap,
+  .sort-select {
+    width: 100%;
+  }
+
+  .filter-stack { gap: 16px; }
+
+  .filter-btn {
+    flex: 1 1 50%;
+    min-width: 0;
+  }
+
+  .sort-wrap {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .sort-select {
+    border-bottom-color: var(--border);
+    padding-right: 0;
+  }
+
+  .property-card {
+    grid-template-columns: 1fr;
+    padding: 24px;
+  }
+
+  .rank { line-height: 16px; }
+
+  .link-row,
+  .flag-row { grid-column: 1; }
+
+  .link-row {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .link-row a { text-align: center; }
+
+  .price-zone { grid-template-columns: 1fr; }
+  .delta-stack { text-align: left; }
+  .bar-track { width: 100%; }
+}
+
+@media (max-width: 360px) {
+  .container { width: min(100% - 16px, 1184px); }
+  .property-card { padding: 16px; }
+  .link-row { grid-template-columns: 1fr; }
+  .filter-btn { flex-basis: 100%; }
 }
 </style>
 </head>
 <body>
-
-<header>
+<header class="site-header">
   <div class="container header-inner">
-    <div class="logo">
-      <span class="logo-star">&#9733;</span>
-      <h1>
-        <span class="panic">PANIC</span> <span class="at-the">AT THE</span> <span class="disco">DISCO</span>
-        <span class="subtitle">RENTALS &bull; AUSTIN, TX</span>
-      </h1>
-      <div class="nav-links">
+    <div class="brand-block">
+      <div class="wordmark">THE LEASE YOU CAN DO</div>
+      <nav class="nav-links" aria-label="Primary navigation">
         <a href="index.html">Sales</a>
-        <a href="rentals.html" class="active">Rentals</a>
-      </div>
+        <a class="active" href="rentals.html">Rentals</a>
+      </nav>
     </div>
-    <div class="header-stats">
-      <div class="header-stat">
-        <div class="value" id="hdr-deals">—</div>
-        <div class="label">Deals Found</div>
-      </div>
-      <div class="header-stat">
-        <div class="value" id="hdr-avg">—</div>
-        <div class="label">Avg Discount</div>
-      </div>
-      <div class="header-stat">
-        <div class="value" id="hdr-biggest">—</div>
-        <div class="label">Biggest Discount</div>
-      </div>
-      <div class="live-label"><span class="pulse-dot"></span> <span id="live-text">LIVE</span></div>
+    <div class="status-line">
+      <span class="live-dot" aria-hidden="true"></span>
+      <span class="timestamp" id="updated-at">AWAITING DATA</span>
     </div>
   </div>
 </header>
 
 <main class="container">
-  <!-- How It Works -->
-  <div class="accordion">
-    <button class="accordion-toggle" onclick="toggleAccordion(this)">
-      <span>&#9733; How It Works</span>
-      <span class="arrow">&#9660;</span>
-    </button>
-    <div class="accordion-content">
-      <div class="accordion-content-inner">
-        <div class="step">
-          <div class="step-num">1</div>
-          <div class="step-text"><strong>Scan</strong> — We pull active Austin rental listings from RentCast.</div>
-        </div>
-        <div class="step">
-          <div class="step-num">2</div>
-          <div class="step-text"><strong>Compare</strong> — Each listing's rent is compared to the median rent for its zip code.</div>
-        </div>
-        <div class="step">
-          <div class="step-num">3</div>
-          <div class="step-text"><strong>Surface</strong> — Listings priced below median are flagged as hot deals.</div>
-        </div>
-        <div class="step">
-          <div class="step-num">4</div>
-          <div class="step-text"><strong>Refresh</strong> — Data refresh is manual only (no auto-updates).</div>
-        </div>
+  <section class="hero" aria-labelledby="page-title">
+    <p class="kicker">Austin Rental Scanner</p>
+    <h1 class="headline" id="page-title">Below-median active rentals, ranked by variance.</h1>
+    <p class="subhead">RentCast provides the rental feed. External marketplace links are generated per address for manual validation because Zillow and other major rental portals block automated verification.</p>
+  </section>
+
+  <section class="metrics-bar" aria-label="Rental vitals">
+    <div class="metric">
+      <div class="metric-label">Listings</div>
+      <div class="metric-value" id="metric-count">--</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">Average Discount</div>
+      <div class="metric-value" id="metric-average">--</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">Biggest Discount</div>
+      <div class="metric-value accent" id="metric-biggest">--</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">Median Dollar Gap</div>
+      <div class="metric-value" id="metric-median-gap">--</div>
+    </div>
+  </section>
+
+  <section class="toolbar" id="toolbar" style="display:none;" aria-label="Filters and sorting">
+    <div class="filter-stack">
+      <div class="segmented" id="status-filters" aria-label="Status filters">
+        <button class="filter-btn active" type="button" data-status="all">ALL</button>
+        <button class="filter-btn" type="button" data-status="Active">ACTIVE</button>
+        <button class="filter-btn" type="button" data-status="New">NEW</button>
+      </div>
+      <div class="segmented" id="type-filters" aria-label="Type filters">
+        <button class="filter-btn active" type="button" data-type="all">ALL TYPES</button>
+        <button class="filter-btn" type="button" data-type="Apartment">APT</button>
+        <button class="filter-btn" type="button" data-type="Condo">CONDO</button>
+        <button class="filter-btn" type="button" data-type="Single Family">SFH</button>
+        <button class="filter-btn" type="button" data-type="Townhouse">TOWNHOUSE</button>
       </div>
     </div>
-  </div>
+    <div class="sort-wrap">
+      <span class="sort-label">Sort</span>
+      <select class="sort-select" id="sort-select" aria-label="Sort listings">
+        <option value="discountPercent">DISCOUNT %</option>
+        <option value="discountDollar">DOLLAR GAP</option>
+        <option value="lowestRent">LOWEST RENT</option>
+        <option value="mostRecent">NEWEST</option>
+      </select>
+    </div>
+  </section>
 
-  <!-- Filter Controls -->
-  <div class="controls" id="controls" style="display:none;">
-    <div class="filter-group" id="status-filters">
-      <button class="filter-btn active" data-status="all">All</button>
-      <button class="filter-btn" data-status="Active">Active</button>
-      <button class="filter-btn" data-status="New">New</button>
+  <section id="cards-container" aria-live="polite">
+    <div class="loading" aria-label="Loading rental listings">
+      <div class="loading-block">LOADING</div>
+      <div class="loading-block">LOADING</div>
+      <div class="loading-block">LOADING</div>
     </div>
-    <div class="filter-group" id="type-filters">
-      <button class="filter-btn active" data-type="all">All Types</button>
-      <button class="filter-btn" data-type="Single Family">Single Family</button>
-      <button class="filter-btn" data-type="Condo">Condo</button>
-      <button class="filter-btn" data-type="Townhouse">Townhouse</button>
-      <button class="filter-btn" data-type="Apartment">Apartment</button>
-      <button class="filter-btn" data-type="Multi-Family">Multi-Family</button>
-    </div>
-    <select class="sort-select" id="sort-select" onchange="applyFilters()">
-      <option value="discountPercent">Biggest % Discount</option>
-      <option value="discountDollar">Biggest $ Discount</option>
-      <option value="lowestRent">Lowest Rent</option>
-      <option value="mostRecent">Most Recent</option>
-    </select>
-  </div>
-
-  <!-- Stats Bar -->
-  <div class="stats-bar" id="stats-bar" style="display:none;">
-    <div class="stat-card">
-      <div class="stat-value stat-cyan" id="stat-total-deals">—</div>
-      <div class="stat-label">Total Deals</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-value stat-orange" id="stat-avg-pct">—</div>
-      <div class="stat-label">Avg Discount %</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-value stat-red" id="stat-biggest-pct">—</div>
-      <div class="stat-label">Biggest Discount %</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-value stat-gold" id="stat-median-discount">—</div>
-      <div class="stat-label">Median $ Discount</div>
-    </div>
-  </div>
-
-  <!-- Cards List -->
-  <div id="cards-container"></div>
+  </section>
 </main>
 
-<footer>
+<footer class="site-footer">
   <div class="container">
-    Powered by <a href="https://www.rentcast.io" target="_blank">RentCast</a> &bull; Panic at the Disco &bull; Austin, TX &#9733;
+    Powered by <a href="https://www.rentcast.io" target="_blank" rel="noopener">RentCast</a>. External links open marketplace searches for independent listing verification.
   </div>
 </footer>
 
 <script>
 let allDeals = [];
 
-// --- Utilities ---
-
-function formatCurrency(n) {
-  if (n >= 1e6) return '$' + (n / 1e6).toFixed(2) + 'M';
-  if (n >= 1e3) return '$' + (n / 1e3).toFixed(0) + 'K';
-  return '$' + n.toLocaleString();
+function escapeHtml(value) {
+  return String(value ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
 }
 
-function formatCurrencyFull(n) {
-  return '$' + n.toLocaleString();
+function formatCurrency(value) {
+  const n = Number(value || 0);
+  if (Math.abs(n) >= 1000) return '$' + Math.round(n).toLocaleString('en-US');
+  return '$' + n.toLocaleString('en-US');
 }
 
-function formatRent(n) {
-  return '$' + n.toLocaleString() + '/mo';
+function formatRent(value) {
+  return formatCurrency(value) + '/MO';
 }
 
-function timeAgo(dateStr) {
-  if (!dateStr) return '';
-  const diff = Date.now() - new Date(dateStr).getTime();
-  const mins = Math.floor(diff / 60000);
-  if (mins < 60) return mins + 'm ago';
-  const hrs = Math.floor(mins / 60);
-  if (hrs < 24) return hrs + 'h ago';
-  const days = Math.floor(hrs / 24);
-  if (days < 30) return days + 'd ago';
-  const months = Math.floor(days / 30);
-  return months + 'mo ago';
+function formatPct(value) {
+  return '-' + Number(value || 0).toFixed(1) + '%';
 }
 
-function getSeverity(pct) {
-  if (pct >= 30) return 'big';
-  if (pct >= 15) return 'medium';
-  return 'small';
+function encodeAddress(address) {
+  return encodeURIComponent(String(address || '').trim());
 }
 
-// --- Rendering ---
+function marketplaceLinks(deal) {
+  const address = deal.address || [deal.city, deal.state, deal.zip].filter(Boolean).join(' ');
+  const encoded = encodeAddress(address);
+  const apartmentSlug = String(address)
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
 
-function renderCards(deals) {
-  const container = document.getElementById('cards-container');
+  const links = [];
+  if (deal.sourceLink) links.push({ label: 'SOURCE', url: deal.sourceLink });
+  links.push({ label: 'ZILLOW', url: `https://www.zillow.com/homes/for_rent/${encoded}_rb/` });
+  links.push({ label: 'APARTMENTS', url: `https://www.apartments.com/${apartmentSlug}/` });
+  links.push({ label: 'REALTOR', url: `https://www.realtor.com/apartments/${encoded}` });
+  links.push({ label: 'SEARCH', url: `https://duckduckgo.com/?q=${encoded}%20rent` });
+  return links;
+}
 
-  if (deals.length === 0) {
-    container.innerHTML = '<div class="no-results">No rental deals matching your filters. Try adjusting the filters above.</div>';
+function specsLine(deal) {
+  const beds = deal.bedrooms === 0 ? 'STUDIO' : deal.bedrooms != null ? `${deal.bedrooms} BED` : 'BED N/A';
+  const baths = deal.bathrooms != null ? `${deal.bathrooms} BATH` : 'BATH N/A';
+  const sqft = deal.sqft ? `${Number(deal.sqft).toLocaleString('en-US')} SQFT` : 'SQFT N/A';
+  const dom = deal.daysOnMarket != null ? `${deal.daysOnMarket} DOM` : 'DOM N/A';
+  const type = deal.propertyType || 'TYPE N/A';
+  return `${type} | ${beds} | ${baths} | ${sqft} | ${dom}`;
+}
+
+function cautionFlags(deal) {
+  const flags = [];
+  if (deal.discountPercent >= 65) flags.push('EXTREME VARIANCE');
+  if (deal.rentPrice < 700) flags.push('LOW ABSOLUTE RENT');
+  if (deal.bedrooms === 0 && deal.sqft > 600) flags.push('STUDIO/SQFT MISMATCH');
+  if (/room|coliving|shared/i.test(`${deal.address || ''} ${deal.propertyType || ''}`)) flags.push('ROOM RENTAL POSSIBLE');
+  if (Array.isArray(deal.bogusFlags)) flags.push(...deal.bogusFlags.map(flag => String(flag).replace(/-/g, ' ').toUpperCase()));
+  return [...new Set(flags)];
+}
+
+function sortDeals(deals, sortBy) {
+  const sorted = [...deals];
+  switch (sortBy) {
+    case 'discountDollar':
+      sorted.sort((a, b) => (b.discountDollar || 0) - (a.discountDollar || 0));
+      break;
+    case 'lowestRent':
+      sorted.sort((a, b) => (a.rentPrice || 0) - (b.rentPrice || 0));
+      break;
+    case 'mostRecent':
+      sorted.sort((a, b) => new Date(b.listedDate || 0) - new Date(a.listedDate || 0));
+      break;
+    default:
+      sorted.sort((a, b) => (b.discountPercent || 0) - (a.discountPercent || 0));
+  }
+  return sorted;
+}
+
+function updateMetrics(deals) {
+  const count = deals.length;
+  document.getElementById('metric-count').textContent = count.toLocaleString('en-US');
+
+  if (!count) {
+    document.getElementById('metric-average').textContent = '--';
+    document.getElementById('metric-biggest').textContent = '--';
+    document.getElementById('metric-median-gap').textContent = '--';
     return;
   }
 
-  container.innerHTML = deals.map((d, i) => {
-    const rank = i + 1;
-    const severity = getSeverity(d.discountPercent);
-    const rankClass = rank === 1 ? 'gold' : rank === 2 ? 'silver' : rank === 3 ? 'bronze' : '';
-    const pctClass = 'pct-' + severity;
+  const avg = deals.reduce((sum, deal) => sum + Number(deal.discountPercent || 0), 0) / count;
+  const biggest = Math.max(...deals.map(deal => Number(deal.discountPercent || 0)));
+  const gaps = deals.map(deal => Number(deal.discountDollar || 0)).sort((a, b) => a - b);
+  const medianGap = gaps[Math.floor(gaps.length / 2)] || 0;
+
+  document.getElementById('metric-average').textContent = formatPct(avg);
+  document.getElementById('metric-biggest').textContent = formatPct(biggest);
+  document.getElementById('metric-median-gap').textContent = formatCurrency(medianGap);
+}
+
+function renderCards(deals) {
+  const container = document.getElementById('cards-container');
+  if (!deals.length) {
+    container.innerHTML = '<div class="empty">NO DATA</div>';
+    return;
+  }
+
+  container.innerHTML = `<div class="cards-grid">${deals.map((deal, index) => {
+    const pct = Math.max(0, Math.min(100, Number(deal.discountPercent || 0)));
+    const links = marketplaceLinks(deal).map(link => (
+      `<a href="${escapeHtml(link.url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(link.label)}</a>`
+    )).join('');
+    const flags = cautionFlags(deal);
 
     return `
-      <div class="property-card severity-${severity}">
-        <div class="rank ${rankClass}">#${rank}</div>
-        <div class="card-details">
-          <div class="card-address">${d.address}</div>
-          <div class="card-neighborhood">${d.neighborhood}${d.zip ? ' ' + d.zip : ''}</div>
-          <div class="card-tags">
-            <span class="tag tag-type">${d.propertyType}</span>
-            <span class="tag tag-status">${d.status}</span>
-            ${d.bedrooms != null ? `<span class="tag">${d.bedrooms} bd</span>` : ''}
-            ${d.bathrooms != null ? `<span class="tag">${d.bathrooms} ba</span>` : ''}
-            ${d.sqft ? `<span class="tag">${d.sqft.toLocaleString()} sqft</span>` : ''}
-            ${d.daysOnMarket != null ? `<span class="tag">${d.daysOnMarket} DOM</span>` : ''}
+      <article class="property-card">
+        <div class="rank">${String(index + 1).padStart(2, '0')}</div>
+        <div class="card-main">
+          <h2 class="address">${escapeHtml(deal.address || 'Unknown address')}</h2>
+          <p class="specs">${escapeHtml(specsLine(deal))}</p>
+          <div class="price-zone">
+            <div>
+              <div class="rent">${formatRent(deal.rentPrice)}</div>
+              <div class="median">${formatRent(deal.medianRent)}</div>
+            </div>
+            <div class="delta-stack">
+              <div class="delta">${formatPct(deal.discountPercent)}</div>
+              <div class="bar-track" aria-hidden="true"><div class="bar-fill" style="width:${pct}%"></div></div>
+            </div>
           </div>
-          ${d.listedDate ? `<div class="card-time">listed ${timeAgo(d.listedDate)}</div>` : ''}
         </div>
-        <div class="card-price">
-          <div class="price-median">${formatRent(d.medianRent)} median</div>
-          <div class="price-rent">${formatRent(d.rentPrice)}</div>
-          <div class="price-discount-amount">-${formatCurrency(d.discountDollar)}/mo</div>
-          <span class="price-discount-pct ${pctClass}">-${d.discountPercent.toFixed(1)}%</span>
-        </div>
-      </div>
+        <div class="link-row">${links}</div>
+        ${flags.length ? `<div class="flag-row">CHECK: ${escapeHtml(flags.join(' | '))}</div>` : ''}
+      </article>
     `;
-  }).join('');
+  }).join('')}</div>`;
 }
 
-function updateStats(deals) {
-  // Header stats
-  document.getElementById('hdr-deals').textContent = deals.length;
-  if (deals.length > 0) {
-    const avgPct = deals.reduce((s, d) => s + d.discountPercent, 0) / deals.length;
-    document.getElementById('hdr-avg').textContent = avgPct.toFixed(1) + '%';
-    const biggestPct = Math.max(...deals.map(d => d.discountPercent));
-    document.getElementById('hdr-biggest').textContent = biggestPct.toFixed(1) + '%';
-  }
-
-  // Stats bar
-  if (deals.length > 0) {
-    document.getElementById('stat-total-deals').textContent = deals.length;
-    const avgPct = deals.reduce((s, d) => s + d.discountPercent, 0) / deals.length;
-    document.getElementById('stat-avg-pct').textContent = avgPct.toFixed(1) + '%';
-    const biggestPct = Math.max(...deals.map(d => d.discountPercent));
-    document.getElementById('stat-biggest-pct').textContent = biggestPct.toFixed(1) + '%';
-    const sorted = [...deals].sort((a, b) => a.discountDollar - b.discountDollar);
-    const median = sorted[Math.floor(sorted.length / 2)].discountDollar;
-    document.getElementById('stat-median-discount').textContent = formatCurrency(median);
-  }
-}
-
-// --- Filters ---
-
-function applyFilters() {
-  const activeStatus = document.querySelector('#status-filters .filter-btn.active')?.dataset.status || 'all';
-  const activeType = document.querySelector('#type-filters .filter-btn.active')?.dataset.type || 'all';
+function currentFilteredDeals() {
+  const status = document.querySelector('#status-filters .filter-btn.active')?.dataset.status || 'all';
+  const type = document.querySelector('#type-filters .filter-btn.active')?.dataset.type || 'all';
   const sortBy = document.getElementById('sort-select').value;
 
   let filtered = [...allDeals];
-
-  if (activeStatus !== 'all') {
-    filtered = filtered.filter(d => d.status === activeStatus);
-  }
-
-  if (activeType !== 'all') {
-    filtered = filtered.filter(d => d.propertyType === activeType);
-  }
-
-  switch (sortBy) {
-    case 'discountPercent':
-      filtered.sort((a, b) => b.discountPercent - a.discountPercent);
-      break;
-    case 'discountDollar':
-      filtered.sort((a, b) => b.discountDollar - a.discountDollar);
-      break;
-    case 'lowestRent':
-      filtered.sort((a, b) => a.rentPrice - b.rentPrice);
-      break;
-    case 'mostRecent':
-      filtered.sort((a, b) => new Date(b.listedDate || 0) - new Date(a.listedDate || 0));
-      break;
-  }
-
-  renderCards(filtered);
+  if (status !== 'all') filtered = filtered.filter(deal => deal.status === status);
+  if (type !== 'all') filtered = filtered.filter(deal => deal.propertyType === type);
+  return sortDeals(filtered, sortBy);
 }
 
-// --- Event Listeners ---
-
-document.getElementById('status-filters').addEventListener('click', e => {
-  if (!e.target.classList.contains('filter-btn')) return;
-  document.querySelectorAll('#status-filters .filter-btn').forEach(b => b.classList.remove('active'));
-  e.target.classList.add('active');
-  applyFilters();
-});
-
-document.getElementById('type-filters').addEventListener('click', e => {
-  if (!e.target.classList.contains('filter-btn')) return;
-  document.querySelectorAll('#type-filters .filter-btn').forEach(b => b.classList.remove('active'));
-  e.target.classList.add('active');
-  applyFilters();
-});
-
-function toggleAccordion(btn) {
-  btn.classList.toggle('open');
-  btn.nextElementSibling.classList.toggle('open');
+function applyFilters() {
+  const deals = currentFilteredDeals();
+  updateMetrics(deals);
+  renderCards(deals);
 }
 
-// --- Main Load ---
+function bindSegmentedControls(id, attr) {
+  document.getElementById(id).addEventListener('click', event => {
+    const button = event.target.closest(`[${attr}]`);
+    if (!button) return;
+    document.querySelectorAll(`#${id} .filter-btn`).forEach(item => item.classList.remove('active'));
+    button.classList.add('active');
+    applyFilters();
+  });
+}
 
 async function loadData() {
-  const container = document.getElementById('cards-container');
-  container.innerHTML = '<div class="loading"><div class="spinner"></div>Loading Austin rental hot deals...</div>';
-
   try {
-    const resp = await fetch('data/rentals.json', { cache: 'no-cache' });
-    if (!resp.ok) throw new Error('Failed to load rentals data');
-    const data = await resp.json();
+    const response = await fetch('data/rentals.json', { cache: 'no-cache' });
+    if (!response.ok) throw new Error('Failed to load rentals data');
+    const data = await response.json();
+    allDeals = Array.isArray(data.deals) ? sortDeals(data.deals, 'discountPercent') : [];
 
-    allDeals = data.deals || [];
+    document.getElementById('toolbar').style.display = 'flex';
 
-    // Default sort: biggest % discount
-    allDeals.sort((a, b) => b.discountPercent - a.discountPercent);
-
-    document.getElementById('controls').style.display = 'flex';
-    document.getElementById('stats-bar').style.display = 'grid';
-
-    updateStats(allDeals);
-    renderCards(allDeals);
-
-    // Update LIVE label with generation date
     if (data.generated) {
-      const d = new Date(data.generated);
-      const label = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-      document.getElementById('live-text').textContent = 'Updated ' + label;
+      const generated = new Date(data.generated);
+      const label = generated.toLocaleString('en-US', {
+        month: 'short',
+        day: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+      }).toUpperCase();
+      document.getElementById('updated-at').textContent = `UPDATED ${label}`;
     }
 
-  } catch (err) {
-    console.error('Load error:', err);
-    container.innerHTML = '<div class="error-msg">&#9888; ' + err.message + '</div>';
+    applyFilters();
+  } catch (error) {
+    document.getElementById('cards-container').innerHTML = `<div class="error-msg">${escapeHtml(error.message)}</div>`;
   }
 }
 
-// Init
+bindSegmentedControls('status-filters', 'data-status');
+bindSegmentedControls('type-filters', 'data-type');
+document.getElementById('sort-select').addEventListener('change', applyFilters);
 loadData();
 </script>
-
 </body>
 </html>

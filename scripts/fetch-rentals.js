@@ -7,9 +7,11 @@ if (!API_KEY) {
   process.exit(1);
 }
 
-const API_URL = 'https://api.rentcast.io/v1/listings/rental/long-term?city=Austin&state=TX&limit=500';
+const LISTING_LIMIT = parseInt(process.env.LISTING_LIMIT || '500', 10);
+const API_URL = `https://api.rentcast.io/v1/listings/rental/long-term?city=Austin&state=TX&limit=${LISTING_LIMIT}`;
 const MEDIAN_CACHE_PATH = path.join(__dirname, '..', 'data', 'median-rents.json');
 const CACHE_MAX_AGE_MS = 30 * 24 * 60 * 60 * 1000; // 30 days
+const ALLOW_STALE_MEDIAN = process.env.ALLOW_STALE_MEDIAN === '1';
 
 function loadMedianCache() {
   try {
@@ -41,8 +43,15 @@ async function fetchListings() {
 async function getMedianRent(zipCode, cache) {
   const now = Date.now();
   const cached = cache[zipCode];
-  if (cached && (now - cached.fetchedAt) < CACHE_MAX_AGE_MS) {
-    return cached.medianRent;
+  if (cached) {
+    const age = now - cached.fetchedAt;
+    if (age < CACHE_MAX_AGE_MS) {
+      return cached.medianRent;
+    }
+    if (ALLOW_STALE_MEDIAN && cached.medianRent != null) {
+      console.log(`  Using stale median rent for zip ${zipCode} (age: ${Math.round(age / 86400000)}d)`);
+      return cached.medianRent;
+    }
   }
 
   console.log(`  Fetching median rent for zip ${zipCode}...`);
@@ -80,7 +89,11 @@ async function main() {
   const cache = loadMedianCache();
   let medianLookups = 0;
   for (const zip of zips) {
-    const wasCached = cache[zip] && (Date.now() - cache[zip].fetchedAt) < CACHE_MAX_AGE_MS;
+    const cached = cache[zip];
+    const wasCached = cached && (
+      (Date.now() - cached.fetchedAt) < CACHE_MAX_AGE_MS ||
+      (ALLOW_STALE_MEDIAN && cached.medianRent != null)
+    );
     await getMedianRent(zip, cache);
     if (!wasCached) medianLookups++;
   }
@@ -120,6 +133,8 @@ async function main() {
         status: listing.status,
         daysOnMarket: listing.daysOnMarket,
         listedDate: listing.listedDate || listing.createdDate,
+        latitude: listing.latitude || null,
+        longitude: listing.longitude || null,
       });
     }
   }
