@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>The Lease You Can Do - Austin Rental Deals</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' fill='%23FAFAFA'/%3E%3Crect x='10' y='18' width='28' height='36' fill='%231A1A1A'/%3E%3Crect x='16' y='24' width='6' height='6' fill='%2300D4FF'/%3E%3Crect x='26' y='24' width='6' height='6' fill='%23FF3366'/%3E%3Crect x='16' y='36' width='6' height='6' fill='%237C3CFF'/%3E%3Crect x='26' y='36' width='6' height='18' fill='%23FAFAFA'/%3E%3Ccircle cx='43' cy='28' r='7' fill='none' stroke='%2300D4FF' stroke-width='4'/%3E%3Cpath d='M48 33 L57 42 M53 38 L48 43 M56 41 L52 45' stroke='%2300D4FF' stroke-width='4' stroke-linecap='square'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -17,6 +18,11 @@
   --secondary: #666666;
   --muted: #999999;
   --accent: #00D4FF;
+  --violet: #7C3CFF;
+  --magenta: #FF3366;
+  --lime: #7DFF68;
+  --amber: #FFB000;
+  --green: #00C853;
   --border: #E5E5E5;
   --skeleton: #F0F0F0;
   --danger: #FF3366;
@@ -52,7 +58,7 @@ a {
 .empty,
 .loading-block,
 .timestamp,
-.sort-select,
+.filter-select,
 .filter-btn {
   font-family: 'IBM Plex Mono', 'SFMono-Regular', Consolas, monospace;
 }
@@ -201,6 +207,11 @@ a {
 
 .metric-value.accent { color: var(--accent); }
 
+.metric:nth-child(1) { border-top: 4px solid var(--violet); }
+.metric:nth-child(2) { border-top: 4px solid var(--green); }
+.metric:nth-child(3) { border-top: 4px solid var(--accent); }
+.metric:nth-child(4) { border-top: 4px solid var(--amber); }
+
 .toolbar {
   display: flex;
   align-items: center;
@@ -244,14 +255,21 @@ a {
   color: #FFFFFF;
 }
 
-.sort-wrap {
+.select-controls {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+
+.select-wrap {
   display: flex;
   align-items: center;
   gap: 8px;
   min-height: 40px;
 }
 
-.sort-label {
+.select-label {
   color: var(--secondary);
   font-size: 10px;
   font-weight: 600;
@@ -259,7 +277,8 @@ a {
   text-transform: uppercase;
 }
 
-.sort-select {
+.filter-select {
+  font-family: 'IBM Plex Mono', 'SFMono-Regular', Consolas, monospace;
   height: 40px;
   padding: 0 24px 0 0;
   border: 0;
@@ -270,8 +289,8 @@ a {
   font-size: 12px;
 }
 
-.sort-select:hover,
-.sort-select:focus {
+.filter-select:hover,
+.filter-select:focus {
   border-bottom-color: var(--accent);
   outline: 0;
 }
@@ -289,12 +308,39 @@ a {
   gap: 16px;
   background: var(--surface);
   border: 1px solid var(--border);
+  border-top: 4px solid var(--accent);
   border-radius: 2px;
   padding: 24px;
   transition: border-color 150ms ease-out;
 }
 
 .property-card:hover { border-color: var(--accent); }
+.property-card.area-central { border-top-color: var(--accent); }
+.property-card.area-east { border-top-color: var(--magenta); }
+.property-card.area-south { border-top-color: var(--green); }
+.property-card.area-north { border-top-color: var(--violet); }
+.property-card.area-west { border-top-color: var(--amber); }
+.property-card.area-suburban { border-top-color: var(--lime); }
+
+.area-pill {
+  display: inline-block;
+  border: 1px solid var(--border);
+  color: var(--secondary);
+  font-family: 'IBM Plex Mono', 'SFMono-Regular', Consolas, monospace;
+  font-size: 10px;
+  letter-spacing: 0.05em;
+  line-height: 16px;
+  margin: 8px 0 0;
+  padding: 4px 8px;
+  text-transform: uppercase;
+}
+
+.area-central .area-pill { border-color: var(--accent); color: #007C94; }
+.area-east .area-pill { border-color: var(--magenta); color: #C9003E; }
+.area-south .area-pill { border-color: var(--green); color: #007D34; }
+.area-north .area-pill { border-color: var(--violet); color: #4C20B8; }
+.area-west .area-pill { border-color: var(--amber); color: #8A5E00; }
+.area-suburban .area-pill { border-color: var(--lime); color: #3F7F00; }
 
 .rank {
   color: var(--muted);
@@ -363,6 +409,12 @@ a {
   height: 4px;
   background: var(--accent);
 }
+
+.area-east .bar-fill { background: var(--magenta); }
+.area-south .bar-fill { background: var(--green); }
+.area-north .bar-fill { background: var(--violet); }
+.area-west .bar-fill { background: var(--amber); }
+.area-suburban .bar-fill { background: var(--lime); }
 
 .link-row {
   display: flex;
@@ -486,8 +538,9 @@ a {
 
   .filter-stack,
   .segmented,
-  .sort-wrap,
-  .sort-select {
+  .select-controls,
+  .select-wrap,
+  .filter-select {
     width: 100%;
   }
 
@@ -498,13 +551,17 @@ a {
     min-width: 0;
   }
 
-  .sort-wrap {
+  .select-controls,
+  .select-wrap {
     align-items: flex-start;
     flex-direction: column;
-    gap: 0;
   }
 
-  .sort-select {
+  .select-controls { gap: 16px; }
+
+  .select-wrap { gap: 0; }
+
+  .filter-select {
     border-bottom-color: var(--border);
     padding-right: 0;
   }
@@ -597,14 +654,28 @@ a {
         <button class="filter-btn" type="button" data-type="Townhouse">TOWNHOUSE</button>
       </div>
     </div>
-    <div class="sort-wrap">
-      <span class="sort-label">Sort</span>
-      <select class="sort-select" id="sort-select" aria-label="Sort listings">
-        <option value="discountPercent">DISCOUNT %</option>
-        <option value="discountDollar">DOLLAR GAP</option>
-        <option value="lowestRent">LOWEST RENT</option>
-        <option value="mostRecent">NEWEST</option>
-      </select>
+    <div class="select-controls">
+      <div class="select-wrap">
+        <span class="select-label">Area</span>
+        <select class="filter-select" id="area-select" aria-label="Filter by Austin area">
+          <option value="all">ALL AUSTIN</option>
+          <option value="central">CENTRAL</option>
+          <option value="east">EAST</option>
+          <option value="south">SOUTH</option>
+          <option value="north">NORTH</option>
+          <option value="west">WEST</option>
+          <option value="suburban">SUBURBAN</option>
+        </select>
+      </div>
+      <div class="select-wrap">
+        <span class="select-label">Sort</span>
+        <select class="filter-select" id="sort-select" aria-label="Sort listings">
+          <option value="discountPercent">DISCOUNT %</option>
+          <option value="discountDollar">DOLLAR GAP</option>
+          <option value="lowestRent">LOWEST RENT</option>
+          <option value="mostRecent">NEWEST</option>
+        </select>
+      </div>
     </div>
   </section>
 
@@ -670,13 +741,43 @@ function marketplaceLinks(deal) {
   return links;
 }
 
+const AREA_BY_ZIP = {
+  central: ['78701', '78703', '78704', '78705', '78712', '78722', '78751', '78752', '78756', '78757'],
+  east: ['78702', '78721', '78723', '78724', '78725', '78741', '78742'],
+  south: ['78744', '78745', '78747', '78748', '78749'],
+  north: ['78727', '78728', '78729', '78753', '78754', '78758', '78759'],
+  west: ['78730', '78731', '78732', '78733', '78734', '78735', '78736', '78738', '78746', '78750'],
+  suburban: ['78617', '78641', '78652', '78653', '78660', '78664', '78681'],
+};
+
+function areaForZip(zip) {
+  const normalized = String(zip || '').trim();
+  for (const [area, zips] of Object.entries(AREA_BY_ZIP)) {
+    if (zips.includes(normalized)) return area;
+  }
+  return 'suburban';
+}
+
+function areaLabel(area) {
+  const labels = {
+    central: 'Central Austin',
+    east: 'East Austin',
+    south: 'South Austin',
+    north: 'North Austin',
+    west: 'West Austin',
+    suburban: 'Austin Metro',
+  };
+  return labels[area] || 'Austin Metro';
+}
+
 function specsLine(deal) {
   const beds = deal.bedrooms === 0 ? 'STUDIO' : deal.bedrooms != null ? `${deal.bedrooms} BED` : 'BED N/A';
   const baths = deal.bathrooms != null ? `${deal.bathrooms} BATH` : 'BATH N/A';
   const sqft = deal.sqft ? `${Number(deal.sqft).toLocaleString('en-US')} SQFT` : 'SQFT N/A';
   const dom = deal.daysOnMarket != null ? `${deal.daysOnMarket} DOM` : 'DOM N/A';
   const type = deal.propertyType || 'TYPE N/A';
-  return `${type} | ${beds} | ${baths} | ${sqft} | ${dom}`;
+  const zip = deal.zip ? `ZIP ${deal.zip}` : 'ZIP N/A';
+  return `${type} | ${beds} | ${baths} | ${sqft} | ${dom} | ${zip}`;
 }
 
 function cautionFlags(deal) {
@@ -737,16 +838,18 @@ function renderCards(deals) {
 
   container.innerHTML = `<div class="cards-grid">${deals.map((deal, index) => {
     const pct = Math.max(0, Math.min(100, Number(deal.discountPercent || 0)));
+    const area = areaForZip(deal.zip);
     const links = marketplaceLinks(deal).map(link => (
       `<a href="${escapeHtml(link.url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(link.label)}</a>`
     )).join('');
     const flags = cautionFlags(deal);
 
     return `
-      <article class="property-card">
+      <article class="property-card area-${escapeHtml(area)}">
         <div class="rank">${String(index + 1).padStart(2, '0')}</div>
         <div class="card-main">
           <h2 class="address">${escapeHtml(deal.address || 'Unknown address')}</h2>
+          <div class="area-pill">${escapeHtml(areaLabel(area))}</div>
           <p class="specs">${escapeHtml(specsLine(deal))}</p>
           <div class="price-zone">
             <div>
@@ -769,11 +872,13 @@ function renderCards(deals) {
 function currentFilteredDeals() {
   const status = document.querySelector('#status-filters .filter-btn.active')?.dataset.status || 'all';
   const type = document.querySelector('#type-filters .filter-btn.active')?.dataset.type || 'all';
+  const area = document.getElementById('area-select').value;
   const sortBy = document.getElementById('sort-select').value;
 
   let filtered = [...allDeals];
   if (status !== 'all') filtered = filtered.filter(deal => deal.status === status);
   if (type !== 'all') filtered = filtered.filter(deal => deal.propertyType === type);
+  if (area !== 'all') filtered = filtered.filter(deal => areaForZip(deal.zip) === area);
   return sortDeals(filtered, sortBy);
 }
 
@@ -823,6 +928,7 @@ async function loadData() {
 bindSegmentedControls('status-filters', 'data-status');
 bindSegmentedControls('type-filters', 'data-type');
 document.getElementById('sort-select').addEventListener('change', applyFilters);
+document.getElementById('area-select').addEventListener('change', applyFilters);
 loadData();
 </script>
 </body>
