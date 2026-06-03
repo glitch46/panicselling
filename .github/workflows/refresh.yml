@@ -24,6 +24,7 @@ jobs:
         env:
           RENTCAST_API_KEY: ${{ secrets.RENTCAST_API_KEY }}
           ALLOW_STALE_MEDIAN: '1'
+          MAX_MEDIAN_LOOKUPS: '0'
 
       - name: Commit and push
         run: |

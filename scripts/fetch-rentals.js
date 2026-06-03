@@ -12,6 +12,9 @@ const API_URL = `https://api.rentcast.io/v1/listings/rental/long-term?city=Austi
 const MEDIAN_CACHE_PATH = path.join(__dirname, '..', 'data', 'median-rents.json');
 const CACHE_MAX_AGE_MS = 30 * 24 * 60 * 60 * 1000; // 30 days
 const ALLOW_STALE_MEDIAN = process.env.ALLOW_STALE_MEDIAN === '1';
+const MAX_MEDIAN_LOOKUPS = Number.isFinite(parseInt(process.env.MAX_MEDIAN_LOOKUPS || '', 10))
+  ? parseInt(process.env.MAX_MEDIAN_LOOKUPS, 10)
+  : Infinity;
 
 function loadMedianCache() {
   try {
@@ -40,7 +43,7 @@ async function fetchListings() {
   return apiFetch(API_URL);
 }
 
-async function getMedianRent(zipCode, cache) {
+async function getMedianRent(zipCode, cache, medianLookups) {
   const now = Date.now();
   const cached = cache[zipCode];
   if (cached) {
@@ -52,6 +55,11 @@ async function getMedianRent(zipCode, cache) {
       console.log(`  Using stale median rent for zip ${zipCode} (age: ${Math.round(age / 86400000)}d)`);
       return cached.medianRent;
     }
+  }
+
+  if (medianLookups >= MAX_MEDIAN_LOOKUPS) {
+    console.log(`  Skipping median rent for zip ${zipCode}; median lookup cap reached`);
+    return null;
   }
 
   console.log(`  Fetching median rent for zip ${zipCode}...`);
@@ -94,8 +102,8 @@ async function main() {
       (Date.now() - cached.fetchedAt) < CACHE_MAX_AGE_MS ||
       (ALLOW_STALE_MEDIAN && cached.medianRent != null)
     );
-    await getMedianRent(zip, cache);
-    if (!wasCached) medianLookups++;
+    await getMedianRent(zip, cache, medianLookups);
+    if (!wasCached && cache[zip]) medianLookups++;
   }
   saveMedianCache(cache);
   console.log(`Median rent lookups: ${medianLookups} (${zips.length - medianLookups} cached)`);
