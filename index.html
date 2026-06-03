@@ -3,799 +3,886 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Panic at the Disco - Austin Real Estate Price Drop Tracker</title>
+<title>The Lease You Can Do - Austin Price Drops</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' fill='%23FAFAFA'/%3E%3Crect x='10' y='18' width='28' height='36' fill='%231A1A1A'/%3E%3Crect x='16' y='24' width='6' height='6' fill='%2300D4FF'/%3E%3Crect x='26' y='24' width='6' height='6' fill='%23FF3366'/%3E%3Crect x='16' y='36' width='6' height='6' fill='%237C3CFF'/%3E%3Crect x='26' y='36' width='6' height='18' fill='%23FAFAFA'/%3E%3Ccircle cx='43' cy='28' r='7' fill='none' stroke='%2300D4FF' stroke-width='4'/%3E%3Cpath d='M48 33 L57 42 M53 38 L48 43 M56 41 L52 45' stroke='%2300D4FF' stroke-width='4' stroke-linecap='square'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+*, *::before, *::after { box-sizing: border-box; }
 
 :root {
-  --bg: #0c0c14;
-  --bg-card: #13131f;
-  --bg-card-hover: #1a1a2e;
-  --border: #1e1e30;
-  --burnt-orange: #BF5700;
-  --texas-red: #CC0000;
-  --warm-gold: #D4A017;
-  --cyan: #00d4ff;
-  --text: #e0e0e0;
-  --text-dim: #888;
-  --text-muted: #555;
-  --green: #00c853;
-  --drop-big: #ff1744;
-  --drop-medium: #ff6d00;
-  --drop-small: #ffc107;
+  --bg: #FAFAFA;
+  --surface: #FFFFFF;
+  --text: #1A1A1A;
+  --secondary: #666666;
+  --muted: #999999;
+  --accent: #00D4FF;
+  --violet: #7C3CFF;
+  --magenta: #FF3366;
+  --lime: #7DFF68;
+  --amber: #FFB000;
+  --green: #00C853;
+  --border: #E5E5E5;
+  --skeleton: #F0F0F0;
+  --danger: #FF3366;
 }
 
+html { background: var(--bg); }
+
 body {
-  font-family: 'Inter', -apple-system, sans-serif;
+  margin: 0;
   background: var(--bg);
   color: var(--text);
-  min-height: 100vh;
-  line-height: 1.5;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 14px;
+  line-height: 24px;
+}
+
+button, select { font: inherit; }
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.metric-value,
+.specs,
+.price-current,
+.price-old,
+.delta,
+.rank,
+.link-row a,
+.empty,
+.loading-block,
+.timestamp,
+.filter-select,
+.filter-btn {
+  font-family: 'IBM Plex Mono', 'SFMono-Regular', Consolas, monospace;
 }
 
 .container {
-  max-width: 1200px;
+  width: min(1184px, calc(100% - 32px));
   margin: 0 auto;
-  padding: 0 20px;
 }
 
-/* Header */
-header {
+.site-header {
   border-bottom: 1px solid var(--border);
-  padding: 20px 0;
+  background: var(--surface);
 }
 
 .header-inner {
+  position: relative;
   display: flex;
+  align-items: center;
   justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 16px;
-}
-
-.logo {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.logo-star {
-  font-size: 28px;
-  color: var(--warm-gold);
-}
-
-.logo h1 {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 24px;
-  font-weight: 700;
-  letter-spacing: 2px;
-}
-
-.logo h1 .panic { color: var(--burnt-orange); }
-.logo h1 .at-the { color: var(--text-dim); }
-.logo h1 .disco { color: var(--warm-gold); }
-.logo h1 .austin { color: #aaa; font-weight: 400; font-size: 14px; display: block; letter-spacing: 4px; }
-
-.header-stats {
-  display: flex;
+  min-height: 64px;
   gap: 24px;
+}
+
+.brand-block {
+  display: flex;
   align-items: center;
-  flex-wrap: wrap;
+  gap: 24px;
 }
 
-.header-stat {
-  text-align: center;
-}
-
-.header-stat .value {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 20px;
+.wordmark {
+  font-family: 'IBM Plex Mono', 'SFMono-Regular', Consolas, monospace;
+  font-size: 14px;
   font-weight: 700;
-  color: var(--cyan);
-}
-
-.header-stat .label {
-  font-size: 11px;
-  color: var(--text-dim);
+  letter-spacing: 0.1em;
   text-transform: uppercase;
-  letter-spacing: 1px;
 }
 
-.pulse-dot {
-  width: 10px;
-  height: 10px;
-  background: var(--green);
-  border-radius: 50%;
-  animation: pulse 2s infinite;
-  display: inline-block;
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.nav-links a {
+  border: 1px solid var(--border);
+  color: var(--secondary);
+  font-size: 10px;
+  letter-spacing: 0.05em;
+  line-height: 16px;
+  padding: 8px 16px;
+  text-transform: uppercase;
+  transition: border-color 150ms ease-out, color 150ms ease-out;
+}
+
+.nav-links a:hover,
+.nav-links a.active {
+  border-color: var(--accent);
+  color: var(--text);
+}
+
+.status-line {
+  position: relative;
+  color: var(--secondary);
+  font-size: 12px;
+  padding-left: 16px;
+  text-align: right;
+}
+
+.live-dot {
+  position: absolute;
+  left: 0;
+  top: 8px;
+  width: 8px;
+  height: 8px;
+  background: var(--accent);
+  animation: pulse 2s ease-out infinite;
 }
 
 @keyframes pulse {
-  0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(0,200,83,0.5); }
-  50% { opacity: 0.7; box-shadow: 0 0 0 8px rgba(0,200,83,0); }
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.32; }
 }
 
-.live-label {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 12px;
-  color: var(--green);
-  font-family: 'JetBrains Mono', monospace;
-}
+.hero { padding: 48px 0 24px; }
 
-/* How It Works Accordion */
-.accordion {
-  margin: 24px 0;
-}
-
-.accordion-toggle {
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 16px 20px;
-  width: 100%;
-  text-align: left;
-  color: var(--text);
-  font-size: 14px;
+.kicker {
+  color: var(--secondary);
+  font-size: 10px;
   font-weight: 600;
-  cursor: pointer;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  transition: background 0.2s;
+  letter-spacing: 0.05em;
+  line-height: 16px;
+  margin: 0 0 8px;
+  text-transform: uppercase;
 }
 
-.accordion-toggle:hover { background: var(--bg-card-hover); }
-
-.accordion-toggle .arrow {
-  transition: transform 0.3s;
-  color: var(--burnt-orange);
+.headline {
+  font-size: 24px;
+  font-weight: 600;
+  line-height: 32px;
+  margin: 0;
 }
 
-.accordion-toggle.open .arrow { transform: rotate(180deg); }
-
-.accordion-content {
-  max-height: 0;
-  overflow: hidden;
-  transition: max-height 0.3s ease;
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-top: none;
-  border-radius: 0 0 8px 8px;
+.subhead {
+  color: var(--secondary);
+  margin: 8px 0 0;
+  max-width: 704px;
 }
 
-.accordion-content.open { max-height: 400px; }
-
-.accordion-content-inner {
-  padding: 20px;
+.metrics-bar {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  grid-template-columns: repeat(4, 1fr);
+  min-height: 96px;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  margin: 24px 0 48px;
+}
+
+.metric {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 96px;
+  padding: 24px;
+}
+
+.metric + .metric { border-left: 1px solid var(--border); }
+
+.metric:nth-child(1) { border-top: 4px solid var(--violet); }
+.metric:nth-child(2) { border-top: 4px solid var(--green); }
+.metric:nth-child(3) { border-top: 4px solid var(--accent); }
+.metric:nth-child(4) { border-top: 4px solid var(--amber); }
+
+.metric-label {
+  color: var(--secondary);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  line-height: 16px;
+  text-transform: uppercase;
+}
+
+.metric-value {
+  color: var(--text);
+  font-size: 32px;
+  font-weight: 700;
+  line-height: 40px;
+  margin-top: 8px;
+}
+
+.metric-value.accent { color: var(--accent); }
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 24px;
+}
+
+.filter-stack {
+  display: flex;
+  flex-wrap: wrap;
   gap: 16px;
 }
 
-.step {
-  display: flex;
-  gap: 12px;
-  align-items: flex-start;
-}
-
-.step-num {
-  background: var(--burnt-orange);
-  color: white;
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 700;
-  font-size: 13px;
-  flex-shrink: 0;
-}
-
-.step-text {
-  font-size: 13px;
-  color: var(--text-dim);
-}
-
-.step-text strong { color: var(--text); }
-
-/* Filter Controls */
-.controls {
+.segmented {
   display: flex;
   flex-wrap: wrap;
-  gap: 12px;
-  align-items: center;
-  margin: 24px 0;
-}
-
-.filter-group {
-  display: flex;
-  gap: 4px;
-  flex-wrap: wrap;
+  min-height: 40px;
 }
 
 .filter-btn {
-  background: var(--bg-card);
+  height: 40px;
+  padding: 0 16px;
+  background: var(--surface);
   border: 1px solid var(--border);
-  color: var(--text-dim);
-  padding: 8px 14px;
-  border-radius: 6px;
-  font-size: 13px;
+  color: var(--secondary);
   cursor: pointer;
-  transition: all 0.2s;
-  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  line-height: 16px;
+  margin-left: -1px;
+  transition: background 150ms ease-out, border-color 150ms ease-out, color 150ms ease-out;
 }
 
-.filter-btn:hover {
-  border-color: var(--burnt-orange);
-  color: var(--text);
-}
+.filter-btn:first-child { margin-left: 0; }
+.filter-btn:hover { border-color: var(--accent); color: var(--text); }
 
 .filter-btn.active {
-  background: var(--burnt-orange);
-  border-color: var(--burnt-orange);
-  color: white;
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #FFFFFF;
 }
 
-.sort-select {
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  color: var(--text);
-  padding: 8px 12px;
-  border-radius: 6px;
-  font-size: 13px;
-  cursor: pointer;
-  font-family: 'Inter', sans-serif;
-  margin-left: auto;
-}
-
-.sort-select:focus { outline: none; border-color: var(--burnt-orange); }
-
-/* Stats Bar */
-.stats-bar {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 12px;
-  margin: 24px 0;
-}
-
-.stat-card {
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 16px 20px;
-  text-align: center;
-}
-
-.stat-card .stat-value {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 24px;
-  font-weight: 700;
-}
-
-.stat-card .stat-label {
-  font-size: 11px;
-  color: var(--text-dim);
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  margin-top: 4px;
-}
-
-.stat-red { color: var(--texas-red); }
-.stat-orange { color: var(--burnt-orange); }
-.stat-gold { color: var(--warm-gold); }
-.stat-cyan { color: var(--cyan); }
-
-/* Property Cards */
-.cards-list {
+.select-controls {
   display: flex;
-  flex-direction: column;
-  gap: 12px;
-  margin: 24px 0;
-  padding-bottom: 60px;
+  align-items: center;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+
+.select-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 40px;
+}
+
+.select-label {
+  color: var(--secondary);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.filter-select {
+  height: 40px;
+  padding: 0 24px 0 0;
+  border: 0;
+  border-bottom: 1px solid transparent;
+  background: transparent;
+  color: var(--text);
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.filter-select:hover,
+.filter-select:focus {
+  border-bottom-color: var(--accent);
+  outline: 0;
+}
+
+.cards-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 24px;
+  padding-bottom: 64px;
 }
 
 .property-card {
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: 20px;
   display: grid;
-  grid-template-columns: 48px 1fr auto;
+  grid-template-columns: 48px 1fr;
   gap: 16px;
-  align-items: center;
-  transition: all 0.2s;
-  cursor: default;
-}
-
-.property-card:hover {
-  background: var(--bg-card-hover);
-  border-color: #2a2a40;
-  transform: translateY(-1px);
-}
-
-.property-card.severity-big { border-left: 3px solid var(--drop-big); }
-.property-card.severity-medium { border-left: 3px solid var(--drop-medium); }
-.property-card.severity-small { border-left: 3px solid var(--drop-small); }
-
-/* Rank */
-.rank {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 18px;
-  font-weight: 700;
-  text-align: center;
-  color: var(--text-dim);
-}
-
-.rank.gold { color: #FFD700; }
-.rank.silver { color: #C0C0C0; }
-.rank.bronze { color: #CD7F32; }
-
-/* Card Details */
-.card-details { min-width: 0; }
-
-.card-address {
-  font-weight: 600;
-  font-size: 15px;
-  margin-bottom: 2px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.card-neighborhood {
-  font-size: 12px;
-  color: var(--text-dim);
-  margin-bottom: 8px;
-}
-
-.card-tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-}
-
-.tag {
-  background: rgba(255,255,255,0.05);
+  background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 4px;
-  padding: 2px 8px;
-  font-size: 11px;
-  color: var(--text-dim);
-  font-family: 'JetBrains Mono', monospace;
+  border-top: 4px solid var(--accent);
+  border-radius: 2px;
+  padding: 24px;
+  transition: border-color 150ms ease-out;
 }
 
-.tag-type {
-  border-color: var(--burnt-orange);
-  color: var(--burnt-orange);
+.property-card:hover { border-color: var(--accent); }
+.property-card.area-central { border-top-color: var(--accent); }
+.property-card.area-east { border-top-color: var(--magenta); }
+.property-card.area-south { border-top-color: var(--green); }
+.property-card.area-north { border-top-color: var(--violet); }
+.property-card.area-west { border-top-color: var(--amber); }
+.property-card.area-suburban { border-top-color: var(--lime); }
+
+.area-pill {
+  display: inline-block;
+  border: 1px solid var(--border);
+  color: var(--secondary);
+  font-family: 'IBM Plex Mono', 'SFMono-Regular', Consolas, monospace;
+  font-size: 10px;
+  letter-spacing: 0.05em;
+  line-height: 16px;
+  margin: 8px 0 0;
+  padding: 4px 8px;
+  text-transform: uppercase;
 }
 
-.card-time {
-  font-size: 11px;
-  color: var(--text-muted);
-  margin-top: 6px;
+.area-central .area-pill { border-color: var(--accent); color: #007C94; }
+.area-east .area-pill { border-color: var(--magenta); color: #C9003E; }
+.area-south .area-pill { border-color: var(--green); color: #007D34; }
+.area-north .area-pill { border-color: var(--violet); color: #4C20B8; }
+.area-west .area-pill { border-color: var(--amber); color: #8A5E00; }
+.area-suburban .area-pill { border-color: var(--lime); color: #3F7F00; }
+
+.rank {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 24px;
 }
 
-/* Price Section */
-.card-price {
-  text-align: right;
-  white-space: nowrap;
+.card-main { min-width: 0; }
+
+.address {
+  color: var(--text);
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 24px;
+  margin: 0;
+}
+
+.specs {
+  color: var(--secondary);
+  font-size: 12px;
+  line-height: 24px;
+  margin: 0 0 16px;
+}
+
+.price-zone {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 16px;
+  align-items: end;
+}
+
+.price-current {
+  color: var(--text);
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 32px;
 }
 
 .price-old {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 13px;
-  color: var(--text-dim);
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 24px;
   text-decoration: line-through;
 }
 
-.price-new {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 20px;
-  font-weight: 700;
+.delta-stack { text-align: right; }
+
+.delta {
+  color: var(--accent);
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 24px;
+}
+
+.bar-track {
+  width: 96px;
+  height: 4px;
+  background: var(--border);
+  margin-top: 8px;
+}
+
+.bar-fill {
+  height: 4px;
+  background: var(--accent);
+}
+
+.area-east .bar-fill { background: var(--magenta); }
+.area-south .bar-fill { background: var(--green); }
+.area-north .bar-fill { background: var(--violet); }
+.area-west .bar-fill { background: var(--amber); }
+.area-suburban .bar-fill { background: var(--lime); }
+
+.link-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  grid-column: 2;
+  margin-top: 16px;
+}
+
+.link-row a {
+  border: 1px solid var(--border);
+  color: var(--secondary);
+  font-size: 10px;
+  letter-spacing: 0.05em;
+  line-height: 16px;
+  padding: 8px;
+  text-transform: uppercase;
+  transition: border-color 150ms ease-out, color 150ms ease-out;
+}
+
+.link-row a:hover {
+  border-color: var(--accent);
   color: var(--text);
 }
 
-.price-drop-amount {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 14px;
-  font-weight: 700;
-  color: var(--texas-red);
-}
-
-.price-drop-pct {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 13px;
-  font-weight: 600;
-  padding: 2px 8px;
-  border-radius: 4px;
-  display: inline-block;
-  margin-top: 4px;
-}
-
-.pct-big { background: rgba(255,23,68,0.15); color: var(--drop-big); }
-.pct-medium { background: rgba(255,109,0,0.15); color: var(--drop-medium); }
-.pct-small { background: rgba(255,193,7,0.15); color: var(--drop-small); }
-
-/* Loading */
 .loading {
-  text-align: center;
-  padding: 60px 20px;
-  color: var(--text-dim);
+  display: grid;
+  gap: 8px;
+  padding: 48px 0 96px;
 }
 
-.spinner {
-  width: 40px;
-  height: 40px;
-  border: 3px solid var(--border);
-  border-top-color: var(--burnt-orange);
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
-  margin: 0 auto 16px;
+.loading-block {
+  height: 16px;
+  background: var(--skeleton);
+  color: transparent;
 }
 
-@keyframes spin { to { transform: rotate(360deg); } }
+.loading-block:nth-child(1) { width: 64%; }
+.loading-block:nth-child(2) { width: 48%; }
+.loading-block:nth-child(3) { width: 56%; }
 
+.empty,
 .error-msg {
-  background: rgba(204,0,0,0.1);
-  border: 1px solid var(--texas-red);
-  border-radius: 8px;
-  padding: 16px 20px;
-  margin: 24px 0;
-  color: var(--texas-red);
-  font-size: 14px;
-}
-
-.no-results {
-  text-align: center;
-  padding: 60px 20px;
-  color: var(--text-dim);
-  font-size: 14px;
-}
-
-/* Footer */
-footer {
-  text-align: center;
-  padding: 20px;
-  color: var(--text-muted);
+  color: var(--muted);
   font-size: 12px;
+  line-height: 24px;
+  padding: 96px 0;
+  text-align: center;
+}
+
+.error-msg { color: var(--danger); }
+
+.site-footer {
   border-top: 1px solid var(--border);
+  color: var(--secondary);
+  font-size: 12px;
+  padding: 24px 0;
 }
 
-footer a { color: var(--burnt-orange); text-decoration: none; }
-footer a:hover { text-decoration: underline; }
+.site-footer a { border-bottom: 1px solid var(--border); }
+.site-footer a:hover { border-bottom-color: var(--accent); }
 
-/* Responsive */
-@media (max-width: 768px) {
-  .header-inner { flex-direction: column; text-align: center; }
-  .header-stats { justify-content: center; }
-  .property-card { grid-template-columns: 36px 1fr; }
-  .card-price { grid-column: 1 / -1; text-align: left; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
-  .controls { flex-direction: column; align-items: stretch; }
-  .sort-select { margin-left: 0; }
-  .stats-bar { grid-template-columns: 1fr 1fr; }
+@media (max-width: 880px) {
+  .header-inner,
+  .brand-block,
+  .toolbar {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .header-inner { padding: 16px 0; }
+  .brand-block { gap: 16px; }
+  .nav-links { width: 100%; }
+
+  .nav-links a {
+    flex: 1;
+    text-align: center;
+  }
+
+  .status-line { text-align: left; }
+  .metrics-bar,
+  .cards-grid { grid-template-columns: 1fr; }
+
+  .metric + .metric {
+    border-left: 0;
+    border-top: 1px solid var(--border);
+  }
 }
 
-@media (max-width: 480px) {
-  .logo h1 { font-size: 18px; }
-  .header-stat .value { font-size: 16px; }
-  .stats-bar { grid-template-columns: 1fr; }
-  .property-card { padding: 14px; }
-  .price-new { font-size: 16px; }
+@media (max-width: 520px) {
+  .container { width: min(100% - 32px, 1184px); }
+  .hero { padding-top: 32px; }
+  .metrics-bar { margin-bottom: 32px; }
+
+  .metric {
+    min-height: 80px;
+    padding: 16px 0;
+  }
+
+  .metric-value {
+    font-size: 24px;
+    line-height: 32px;
+  }
+
+  .filter-stack,
+  .segmented,
+  .select-controls,
+  .select-wrap,
+  .filter-select { width: 100%; }
+
+  .filter-stack { gap: 16px; }
+
+  .filter-btn {
+    flex: 1 1 50%;
+    min-width: 0;
+  }
+
+  .select-controls,
+  .select-wrap {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .select-controls { gap: 16px; }
+  .select-wrap { gap: 0; }
+
+  .filter-select {
+    border-bottom-color: var(--border);
+    padding-right: 0;
+  }
+
+  .property-card {
+    grid-template-columns: 1fr;
+    padding: 24px;
+  }
+
+  .rank { line-height: 16px; }
+  .link-row { grid-column: 1; }
+
+  .link-row {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .link-row a { text-align: center; }
+  .price-zone { grid-template-columns: 1fr; }
+  .delta-stack { text-align: left; }
+  .bar-track { width: 100%; }
+}
+
+@media (max-width: 360px) {
+  .container { width: min(100% - 16px, 1184px); }
+  .property-card { padding: 16px; }
+  .link-row { grid-template-columns: 1fr; }
+  .filter-btn { flex-basis: 100%; }
 }
 </style>
 </head>
 <body>
-
-<header>
+<header class="site-header">
   <div class="container header-inner">
-    <div class="logo">
-      <span class="logo-star">&#9733;</span>
-      <h1><span class="panic">PANIC</span> <span class="at-the">AT THE</span> <span class="disco">DISCO</span><span class="austin">AUSTIN, TX</span></h1>
-      <div style="display:flex;gap:8px;margin-top:4px;">
-        <a href="index.html" style="font-size:11px;color:white;text-decoration:none;padding:2px 8px;border:1px solid var(--burnt-orange);border-radius:4px;font-family:'JetBrains Mono',monospace;background:var(--burnt-orange);">Sales</a>
-        <a href="rentals.html" style="font-size:11px;color:var(--text-dim);text-decoration:none;padding:2px 8px;border:1px solid var(--border);border-radius:4px;font-family:'JetBrains Mono',monospace;transition:all 0.2s;" onmouseover="this.style.borderColor='var(--burnt-orange)';this.style.color='var(--text)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text-dim)'">Rentals</a>
-      </div>
+    <div class="brand-block">
+      <div class="wordmark">THE LEASE YOU CAN DO</div>
+      <nav class="nav-links" aria-label="Primary navigation">
+        <a class="active" href="index.html">Sales</a>
+        <a href="rentals.html">Rentals</a>
+      </nav>
     </div>
-    <div class="header-stats">
-      <div class="header-stat">
-        <div class="value" id="hdr-drops">—</div>
-        <div class="label">Drops Found</div>
-      </div>
-      <div class="header-stat">
-        <div class="value" id="hdr-avg">—</div>
-        <div class="label">Avg Drop %</div>
-      </div>
-      <div class="header-stat">
-        <div class="value" id="hdr-biggest">—</div>
-        <div class="label">Biggest Drop</div>
-      </div>
-      <div class="live-label"><span class="pulse-dot"></span> <span id="live-text">LIVE</span></div>
+    <div class="status-line">
+      <span class="live-dot" aria-hidden="true"></span>
+      <span class="timestamp" id="updated-at">AWAITING DATA</span>
     </div>
   </div>
 </header>
 
 <main class="container">
-  <!-- How It Works -->
-  <div class="accordion">
-    <button class="accordion-toggle" onclick="toggleAccordion(this)">
-      <span>&#9733; How It Works</span>
-      <span class="arrow">&#9660;</span>
-    </button>
-    <div class="accordion-content">
-      <div class="accordion-content-inner">
-        <div class="step">
-          <div class="step-num">1</div>
-          <div class="step-text"><strong>Scan</strong> — We pull active Austin listings from RentCast with full price history.</div>
-        </div>
-        <div class="step">
-          <div class="step-num">2</div>
-          <div class="step-text"><strong>Detect</strong> — Compare current price to historical prices to find drops.</div>
-        </div>
-        <div class="step">
-          <div class="step-num">3</div>
-          <div class="step-text"><strong>Rank</strong> — Sort by drop magnitude so the biggest panic sellers surface first.</div>
-        </div>
-        <div class="step">
-          <div class="step-num">4</div>
-          <div class="step-text"><strong>Refresh</strong> — Data refreshed every 3 days via automated pipeline.</div>
-        </div>
+  <section class="hero" aria-labelledby="page-title">
+    <p class="kicker">Austin Sales Scanner</p>
+    <h1 class="headline" id="page-title">Active listings with verified price drops, ranked by seller movement.</h1>
+    <p class="subhead">RentCast provides the sales feed. Source links are carried through when available, and marketplace searches are generated from each address for quick manual validation.</p>
+  </section>
+
+  <section class="metrics-bar" aria-label="Sales vitals">
+    <div class="metric">
+      <div class="metric-label">Price Drops</div>
+      <div class="metric-value" id="metric-count">--</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">Average Drop</div>
+      <div class="metric-value" id="metric-average">--</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">Biggest Drop</div>
+      <div class="metric-value accent" id="metric-biggest">--</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">Total Value Shed</div>
+      <div class="metric-value" id="metric-total-shed">--</div>
+    </div>
+  </section>
+
+  <section class="toolbar" id="toolbar" style="display:none;" aria-label="Filters and sorting">
+    <div class="filter-stack">
+      <div class="segmented" id="type-filters" aria-label="Type filters">
+        <button class="filter-btn active" type="button" data-type="all">ALL TYPES</button>
+        <button class="filter-btn" type="button" data-type="Single Family">SFH</button>
+        <button class="filter-btn" type="button" data-type="Condo">CONDO</button>
+        <button class="filter-btn" type="button" data-type="Townhouse">TOWNHOUSE</button>
+        <button class="filter-btn" type="button" data-type="Multi-Family">MULTI</button>
+      </div>
+      <div class="segmented" id="threshold-filters" aria-label="Drop threshold filters">
+        <button class="filter-btn active" type="button" data-threshold="all">ALL DROPS</button>
+        <button class="filter-btn" type="button" data-threshold="10">10%+</button>
+        <button class="filter-btn" type="button" data-threshold="20">20%+</button>
       </div>
     </div>
-  </div>
+    <div class="select-controls">
+      <div class="select-wrap">
+        <span class="select-label">Area</span>
+        <select class="filter-select" id="area-select" aria-label="Filter by Austin area">
+          <option value="all">ALL AUSTIN</option>
+          <option value="central">CENTRAL</option>
+          <option value="east">EAST</option>
+          <option value="south">SOUTH</option>
+          <option value="north">NORTH</option>
+          <option value="west">WEST</option>
+          <option value="suburban">SUBURBAN</option>
+        </select>
+      </div>
+      <div class="select-wrap">
+        <span class="select-label">Sort</span>
+        <select class="filter-select" id="sort-select" aria-label="Sort listings">
+          <option value="dropDollar">DOLLAR DROP</option>
+          <option value="dropPercent">DROP %</option>
+          <option value="mostRecent">NEWEST DROP</option>
+          <option value="lowestPrice">LOWEST PRICE</option>
+        </select>
+      </div>
+    </div>
+  </section>
 
-  <!-- Filter Controls -->
-  <div class="controls" id="controls" style="display:none;">
-    <div class="filter-group" id="type-filters">
-      <button class="filter-btn active" data-type="all">All</button>
-      <button class="filter-btn" data-type="Single Family">Single Family</button>
-      <button class="filter-btn" data-type="Condo">Condo</button>
-      <button class="filter-btn" data-type="Townhouse">Townhouse</button>
-      <button class="filter-btn" data-type="Multi-Family">Multi-Family</button>
+  <section id="cards-container" aria-live="polite">
+    <div class="loading" aria-label="Loading sales listings">
+      <div class="loading-block">LOADING</div>
+      <div class="loading-block">LOADING</div>
+      <div class="loading-block">LOADING</div>
     </div>
-    <div class="filter-group" id="threshold-filters">
-      <button class="filter-btn" data-threshold="10">10%+ Drops</button>
-      <button class="filter-btn" data-threshold="20">20%+ Drops</button>
-    </div>
-    <select class="sort-select" id="sort-select" onchange="applyFilters()">
-      <option value="dropDollar">Biggest $ Drop</option>
-      <option value="dropPercent">Biggest % Drop</option>
-      <option value="mostRecent">Most Recent Drop</option>
-      <option value="lowestPrice">Lowest Price</option>
-    </select>
-  </div>
-
-  <!-- Stats Bar -->
-  <div class="stats-bar" id="stats-bar" style="display:none;">
-    <div class="stat-card">
-      <div class="stat-value stat-red" id="stat-biggest-pct">—</div>
-      <div class="stat-label">Biggest % Drop</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-value stat-cyan" id="stat-total-scanned">—</div>
-      <div class="stat-label">Properties Scanned</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-value stat-orange" id="stat-total-value">—</div>
-      <div class="stat-label">Total Value Shed</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-value stat-gold" id="stat-median-drop">—</div>
-      <div class="stat-label">Median $ Drop</div>
-    </div>
-  </div>
-
-  <!-- Cards List -->
-  <div id="cards-container"></div>
+  </section>
 </main>
 
-<footer>
+<footer class="site-footer">
   <div class="container">
-    Powered by <a href="https://www.rentcast.io" target="_blank">RentCast</a> &bull; Panic at the Disco &bull; Austin, TX &#9733;
+    Powered by <a href="https://www.rentcast.io" target="_blank" rel="noopener">RentCast</a>. Sales links open available source listings and marketplace searches for independent verification.
   </div>
 </footer>
 
 <script>
 let allDrops = [];
-let totalScanned = 0;
 
-// --- Utilities ---
-
-function formatCurrency(n) {
-  if (n >= 1e6) return '$' + (n / 1e6).toFixed(2) + 'M';
-  if (n >= 1e3) return '$' + (n / 1e3).toFixed(0) + 'K';
-  return '$' + n.toLocaleString();
+function escapeHtml(value) {
+  return String(value ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
 }
 
-function formatCurrencyFull(n) {
-  return '$' + n.toLocaleString();
+function formatCurrency(value) {
+  const n = Number(value || 0);
+  if (Math.abs(n) >= 1000000) return '$' + (n / 1000000).toFixed(2) + 'M';
+  if (Math.abs(n) >= 1000) return '$' + Math.round(n / 1000).toLocaleString('en-US') + 'K';
+  return '$' + Math.round(n).toLocaleString('en-US');
 }
 
-function timeAgo(dateStr) {
-  const diff = Date.now() - new Date(dateStr).getTime();
-  const mins = Math.floor(diff / 60000);
-  if (mins < 60) return mins + 'm ago';
-  const hrs = Math.floor(mins / 60);
-  if (hrs < 24) return hrs + 'h ago';
-  const days = Math.floor(hrs / 24);
-  if (days < 30) return days + 'd ago';
-  const months = Math.floor(days / 30);
-  return months + 'mo ago';
+function formatCurrencyFull(value) {
+  return '$' + Math.round(Number(value || 0)).toLocaleString('en-US');
 }
 
-function getSeverity(pct) {
-  if (pct >= 20) return 'big';
-  if (pct >= 10) return 'medium';
-  return 'small';
+function formatPct(value) {
+  return '-' + Number(value || 0).toFixed(1) + '%';
 }
 
-// --- Rendering ---
+function encodeAddress(address) {
+  return encodeURIComponent(String(address || '').trim());
+}
 
-function renderCards(drops) {
-  const container = document.getElementById('cards-container');
+function marketplaceLinks(drop) {
+  const address = drop.address || [drop.city, drop.state, drop.zip].filter(Boolean).join(' ');
+  const encoded = encodeAddress(address);
+  const links = [];
+  if (drop.sourceLink) links.push({ label: 'SOURCE', url: drop.sourceLink });
+  links.push({ label: 'ZILLOW', url: `https://www.zillow.com/homes/${encoded}_rb/` });
+  links.push({ label: 'REALTOR', url: `https://www.realtor.com/realestateandhomes-search/${encoded}` });
+  links.push({ label: 'REDFIN', url: `https://www.redfin.com/stingray/do/query-location?location=${encoded}` });
+  links.push({ label: 'SEARCH', url: `https://duckduckgo.com/?q=${encoded}%20for%20sale` });
+  return links;
+}
 
-  if (drops.length === 0) {
-    container.innerHTML = '<div class="no-results">No price drops matching your filters. Try adjusting the filters above.</div>';
+const AREA_BY_ZIP = {
+  central: ['78701', '78703', '78704', '78705', '78712', '78722', '78751', '78752', '78756', '78757'],
+  east: ['78702', '78721', '78723', '78724', '78725', '78741', '78742'],
+  south: ['78744', '78745', '78747', '78748', '78749'],
+  north: ['78727', '78728', '78729', '78753', '78754', '78758', '78759'],
+  west: ['78730', '78731', '78732', '78733', '78734', '78735', '78736', '78738', '78746', '78750'],
+  suburban: ['78617', '78641', '78652', '78653', '78660', '78664', '78681'],
+};
+
+function areaForZip(zip) {
+  const normalized = String(zip || '').trim();
+  for (const [area, zips] of Object.entries(AREA_BY_ZIP)) {
+    if (zips.includes(normalized)) return area;
+  }
+  return 'suburban';
+}
+
+function areaLabel(area) {
+  const labels = {
+    central: 'Central Austin',
+    east: 'East Austin',
+    south: 'South Austin',
+    north: 'North Austin',
+    west: 'West Austin',
+    suburban: 'Austin Metro',
+  };
+  return labels[area] || 'Austin Metro';
+}
+
+function specsLine(drop) {
+  const beds = drop.bedrooms === 0 ? 'STUDIO' : drop.bedrooms != null ? `${drop.bedrooms} BED` : 'BED N/A';
+  const baths = drop.bathrooms != null ? `${drop.bathrooms} BATH` : 'BATH N/A';
+  const sqft = drop.sqft ? `${Number(drop.sqft).toLocaleString('en-US')} SQFT` : 'SQFT N/A';
+  const dom = drop.daysOnMarket != null ? `${drop.daysOnMarket} DOM` : 'DOM N/A';
+  const type = drop.propertyType || 'TYPE N/A';
+  const zip = drop.zip ? `ZIP ${drop.zip}` : 'ZIP N/A';
+  const mls = drop.mlsNumber ? `MLS ${drop.mlsNumber}` : null;
+  return [type, beds, baths, sqft, dom, zip, mls].filter(Boolean).join(' | ');
+}
+
+function sortDrops(drops, sortBy) {
+  const sorted = [...drops];
+  switch (sortBy) {
+    case 'dropPercent':
+      sorted.sort((a, b) => (b.dropPercent || 0) - (a.dropPercent || 0));
+      break;
+    case 'mostRecent':
+      sorted.sort((a, b) => new Date(b.dropDate || 0) - new Date(a.dropDate || 0));
+      break;
+    case 'lowestPrice':
+      sorted.sort((a, b) => (a.currentPrice || 0) - (b.currentPrice || 0));
+      break;
+    default:
+      sorted.sort((a, b) => (b.dropDollar || 0) - (a.dropDollar || 0));
+  }
+  return sorted;
+}
+
+function updateMetrics(drops) {
+  const count = drops.length;
+  document.getElementById('metric-count').textContent = count.toLocaleString('en-US');
+
+  if (!count) {
+    document.getElementById('metric-average').textContent = '--';
+    document.getElementById('metric-biggest').textContent = '--';
+    document.getElementById('metric-total-shed').textContent = '--';
     return;
   }
 
-  container.innerHTML = drops.map((d, i) => {
-    const rank = i + 1;
-    const severity = getSeverity(d.dropPercent);
-    const rankClass = rank === 1 ? 'gold' : rank === 2 ? 'silver' : rank === 3 ? 'bronze' : '';
-    const pctClass = 'pct-' + severity;
+  const avg = drops.reduce((sum, drop) => sum + Number(drop.dropPercent || 0), 0) / count;
+  const biggest = Math.max(...drops.map(drop => Number(drop.dropPercent || 0)));
+  const totalShed = drops.reduce((sum, drop) => sum + Number(drop.dropDollar || 0), 0);
+
+  document.getElementById('metric-average').textContent = formatPct(avg);
+  document.getElementById('metric-biggest').textContent = formatPct(biggest);
+  document.getElementById('metric-total-shed').textContent = formatCurrency(totalShed);
+}
+
+function renderCards(drops) {
+  const container = document.getElementById('cards-container');
+  if (!drops.length) {
+    container.innerHTML = '<div class="empty">NO DATA</div>';
+    return;
+  }
+
+  container.innerHTML = `<div class="cards-grid">${drops.map((drop, index) => {
+    const pct = Math.max(0, Math.min(100, Number(drop.dropPercent || 0)));
+    const area = areaForZip(drop.zip);
+    const links = marketplaceLinks(drop).map(link => (
+      `<a href="${escapeHtml(link.url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(link.label)}</a>`
+    )).join('');
 
     return `
-      <div class="property-card severity-${severity}">
-        <div class="rank ${rankClass}">#${rank}</div>
-        <div class="card-details">
-          <div class="card-address">${d.address}</div>
-          <div class="card-neighborhood">${d.neighborhood}${d.zip ? ' ' + d.zip : ''}</div>
-          <div class="card-tags">
-            <span class="tag tag-type">${d.propertyType}</span>
-            ${d.bedrooms != null ? `<span class="tag">${d.bedrooms} bd</span>` : ''}
-            ${d.bathrooms != null ? `<span class="tag">${d.bathrooms} ba</span>` : ''}
-            ${d.sqft ? `<span class="tag">${d.sqft.toLocaleString()} sqft</span>` : ''}
-            ${d.daysOnMarket != null ? `<span class="tag">${d.daysOnMarket} DOM</span>` : ''}
-            ${d.mlsNumber ? `<span class="tag">MLS# ${d.mlsNumber}</span>` : ''}
+      <article class="property-card area-${escapeHtml(area)}">
+        <div class="rank">${String(index + 1).padStart(2, '0')}</div>
+        <div class="card-main">
+          <h2 class="address">${escapeHtml(drop.address || 'Unknown address')}</h2>
+          <div class="area-pill">${escapeHtml(areaLabel(area))}</div>
+          <p class="specs">${escapeHtml(specsLine(drop))}</p>
+          <div class="price-zone">
+            <div>
+              <div class="price-current">${formatCurrencyFull(drop.currentPrice)}</div>
+              <div class="price-old">${formatCurrencyFull(drop.oldPrice)}</div>
+            </div>
+            <div class="delta-stack">
+              <div class="delta">${formatPct(drop.dropPercent)} | ${formatCurrency(drop.dropDollar)}</div>
+              <div class="bar-track" aria-hidden="true"><div class="bar-fill" style="width:${pct}%"></div></div>
+            </div>
           </div>
-          <div class="card-time">dropped ${timeAgo(d.dropDate)}${d.sourceLink ? ` · <a href="${d.sourceLink}" target="_blank" rel="noopener noreferrer">listing link</a>` : ''}</div>
         </div>
-        <div class="card-price">
-          <div class="price-old">${formatCurrencyFull(d.oldPrice)}</div>
-          <div class="price-new">${formatCurrencyFull(d.currentPrice)}</div>
-          <div class="price-drop-amount">-${formatCurrency(d.dropDollar)}</div>
-          <span class="price-drop-pct ${pctClass}">-${d.dropPercent.toFixed(1)}%</span>
-        </div>
-      </div>
+        <div class="link-row">${links}</div>
+      </article>
     `;
-  }).join('');
+  }).join('')}</div>`;
 }
 
-function updateStats(drops) {
-  // Header stats
-  document.getElementById('hdr-drops').textContent = drops.length;
-  if (drops.length > 0) {
-    const avgPct = drops.reduce((s, d) => s + d.dropPercent, 0) / drops.length;
-    document.getElementById('hdr-avg').textContent = avgPct.toFixed(1) + '%';
-    const biggestDollar = Math.max(...drops.map(d => d.dropDollar));
-    document.getElementById('hdr-biggest').textContent = formatCurrency(biggestDollar);
-  }
-
-  // Stats bar
-  if (drops.length > 0) {
-    const biggestPct = Math.max(...drops.map(d => d.dropPercent));
-    document.getElementById('stat-biggest-pct').textContent = biggestPct.toFixed(1) + '%';
-    document.getElementById('stat-total-scanned').textContent = totalScanned.toLocaleString();
-    const totalShed = drops.reduce((s, d) => s + d.dropDollar, 0);
-    document.getElementById('stat-total-value').textContent = formatCurrency(totalShed);
-    const sortedDrops = [...drops].sort((a, b) => a.dropDollar - b.dropDollar);
-    const median = sortedDrops[Math.floor(sortedDrops.length / 2)].dropDollar;
-    document.getElementById('stat-median-drop').textContent = formatCurrency(median);
-  }
-}
-
-// --- Filters ---
-
-function applyFilters() {
-  const activeType = document.querySelector('#type-filters .filter-btn.active')?.dataset.type || 'all';
-  const activeThreshold = document.querySelector('#threshold-filters .filter-btn.active')?.dataset.threshold || null;
+function currentFilteredDrops() {
+  const type = document.querySelector('#type-filters .filter-btn.active')?.dataset.type || 'all';
+  const threshold = document.querySelector('#threshold-filters .filter-btn.active')?.dataset.threshold || 'all';
+  const area = document.getElementById('area-select').value;
   const sortBy = document.getElementById('sort-select').value;
 
   let filtered = [...allDrops];
-
-  if (activeType !== 'all') {
-    filtered = filtered.filter(d => d.propertyType === activeType);
-  }
-
-  if (activeThreshold) {
-    filtered = filtered.filter(d => d.dropPercent >= parseFloat(activeThreshold));
-  }
-
-  switch (sortBy) {
-    case 'dropDollar':
-      filtered.sort((a, b) => b.dropDollar - a.dropDollar);
-      break;
-    case 'dropPercent':
-      filtered.sort((a, b) => b.dropPercent - a.dropPercent);
-      break;
-    case 'mostRecent':
-      filtered.sort((a, b) => new Date(b.dropDate) - new Date(a.dropDate));
-      break;
-    case 'lowestPrice':
-      filtered.sort((a, b) => a.currentPrice - b.currentPrice);
-      break;
-  }
-
-  renderCards(filtered);
+  if (type !== 'all') filtered = filtered.filter(drop => drop.propertyType === type);
+  if (threshold !== 'all') filtered = filtered.filter(drop => Number(drop.dropPercent || 0) >= Number(threshold));
+  if (area !== 'all') filtered = filtered.filter(drop => areaForZip(drop.zip) === area);
+  return sortDrops(filtered, sortBy);
 }
 
-// --- Event Listeners ---
-
-document.getElementById('type-filters').addEventListener('click', e => {
-  if (!e.target.classList.contains('filter-btn')) return;
-  document.querySelectorAll('#type-filters .filter-btn').forEach(b => b.classList.remove('active'));
-  e.target.classList.add('active');
-  applyFilters();
-});
-
-document.getElementById('threshold-filters').addEventListener('click', e => {
-  if (!e.target.classList.contains('filter-btn')) return;
-  const wasActive = e.target.classList.contains('active');
-  document.querySelectorAll('#threshold-filters .filter-btn').forEach(b => b.classList.remove('active'));
-  if (!wasActive) e.target.classList.add('active');
-  applyFilters();
-});
-
-function toggleAccordion(btn) {
-  btn.classList.toggle('open');
-  btn.nextElementSibling.classList.toggle('open');
+function applyFilters() {
+  const drops = currentFilteredDrops();
+  updateMetrics(drops);
+  renderCards(drops);
 }
 
-// --- Main Load ---
+function bindSegmentedControls(id, attr) {
+  document.getElementById(id).addEventListener('click', event => {
+    const button = event.target.closest(`[${attr}]`);
+    if (!button) return;
+    document.querySelectorAll(`#${id} .filter-btn`).forEach(item => item.classList.remove('active'));
+    button.classList.add('active');
+    applyFilters();
+  });
+}
 
 async function loadData() {
-  const container = document.getElementById('cards-container');
-  container.innerHTML = '<div class="loading"><div class="spinner"></div>Loading Austin price drop data...</div>';
-
   try {
-    const resp = await fetch('data/listings.json', { cache: 'no-cache' });
-    if (!resp.ok) throw new Error('Failed to load listings data');
-    const data = await resp.json();
+    const response = await fetch('data/listings.json', { cache: 'no-cache' });
+    if (!response.ok) throw new Error('Failed to load sales data');
+    const data = await response.json();
+    allDrops = Array.isArray(data.drops) ? sortDrops(data.drops, 'dropDollar') : [];
 
-    totalScanned = data.totalScanned || 0;
-    allDrops = data.drops || [];
+    document.getElementById('toolbar').style.display = 'flex';
 
-    // Default sort: biggest dollar drop
-    allDrops.sort((a, b) => b.dropDollar - a.dropDollar);
-
-    document.getElementById('controls').style.display = 'flex';
-    document.getElementById('stats-bar').style.display = 'grid';
-
-    updateStats(allDrops);
-    renderCards(allDrops);
-
-    // Update LIVE label with generation date
     if (data.generated) {
-      const d = new Date(data.generated);
-      const label = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-      document.getElementById('live-text').textContent = 'Updated ' + label;
+      const generated = new Date(data.generated);
+      const label = generated.toLocaleString('en-US', {
+        month: 'short',
+        day: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+      }).toUpperCase();
+      document.getElementById('updated-at').textContent = `UPDATED ${label}`;
     }
 
-  } catch (err) {
-    console.error('Load error:', err);
-    container.innerHTML = '<div class="error-msg">&#9888; ' + err.message + '</div>';
+    applyFilters();
+  } catch (error) {
+    document.getElementById('cards-container').innerHTML = `<div class="error-msg">${escapeHtml(error.message)}</div>`;
   }
 }
 
-// Init
+bindSegmentedControls('type-filters', 'data-type');
+bindSegmentedControls('threshold-filters', 'data-threshold');
+document.getElementById('sort-select').addEventListener('change', applyFilters);
+document.getElementById('area-select').addEventListener('change', applyFilters);
 loadData();
 </script>
-
 </body>
 </html>
