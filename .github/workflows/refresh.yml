@@ -2,7 +2,7 @@ name: Refresh listings data
 
 on:
   schedule:
-    # Around 10 PM CST every 3 days. Uses one RentCast rental listing call and stale median cache.
+    # Around 10 PM CST every 3 days. Uses one sales call, one rental call, and zero median calls.
     - cron: '0 4 */3 * *'
   workflow_dispatch:
 
@@ -19,6 +19,11 @@ jobs:
         with:
           node-version: 20
 
+      - name: Fetch sale listings
+        run: node scripts/fetch-listings.js
+        env:
+          RENTCAST_API_KEY: ${{ secrets.RENTCAST_API_KEY }}
+
       - name: Fetch rental listings
         run: node scripts/fetch-rentals.js
         env:
@@ -30,7 +35,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add data/rentals.json
+          git add data/listings.json data/rentals.json
           git diff --quiet --cached && echo "No changes" && exit 0
-          git commit -m "chore: refresh rentals data"
+          git commit -m "chore: refresh listings data"
           git push
