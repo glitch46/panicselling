@@ -336,6 +336,23 @@ a {
 .area-west .area-pill { border-color: var(--amber); color: #8A5E00; }
 .area-suburban .area-pill { border-color: var(--lime); color: #3F7F00; }
 
+.status-pill {
+  display: inline-block;
+  border: 1px solid var(--border);
+  color: var(--secondary);
+  font-family: 'IBM Plex Mono', 'SFMono-Regular', Consolas, monospace;
+  font-size: 10px;
+  letter-spacing: 0.05em;
+  line-height: 16px;
+  margin: 8px 0 0 8px;
+  padding: 4px 8px;
+  text-transform: uppercase;
+}
+
+.status-pill.drop { border-color: var(--accent); color: #007C94; }
+.status-pill.active-no-drop { border-color: var(--amber); color: #8A5E00; }
+.status-pill.active-no-history { border-color: var(--magenta); color: #C9003E; }
+
 .rank {
   color: var(--muted);
   font-size: 12px;
@@ -389,6 +406,8 @@ a {
   font-weight: 600;
   line-height: 24px;
 }
+
+.delta.muted { color: var(--secondary); }
 
 .bar-track {
   width: 96px;
@@ -585,17 +604,17 @@ a {
 <main class="container">
   <section class="hero" aria-labelledby="page-title">
     <p class="kicker">Austin Sales Scanner</p>
-    <h1 class="headline" id="page-title">Active listings with verified price drops, ranked by seller movement.</h1>
-    <p class="subhead">RentCast provides the sales feed. Source links are carried through when available, and marketplace searches are generated from each address for quick manual validation.</p>
+    <h1 class="headline" id="page-title">Price drops first, then active listings for broader market coverage.</h1>
+    <p class="subhead">RentCast provides the sales feed. Listings with 2%+ price drops are ranked first; active listings without qualifying price history are labeled separately.</p>
   </section>
 
   <section class="metrics-bar" aria-label="Sales vitals">
     <div class="metric">
-      <div class="metric-label">Price Drops</div>
+      <div class="metric-label">Display Listings</div>
       <div class="metric-value" id="metric-count">--</div>
     </div>
     <div class="metric">
-      <div class="metric-label">Average Drop</div>
+      <div class="metric-label">Price Drops</div>
       <div class="metric-value" id="metric-average">--</div>
     </div>
     <div class="metric">
@@ -603,7 +622,7 @@ a {
       <div class="metric-value accent" id="metric-biggest">--</div>
     </div>
     <div class="metric">
-      <div class="metric-label">Total Value Shed</div>
+      <div class="metric-label">Active Fallback</div>
       <div class="metric-value" id="metric-total-shed">--</div>
     </div>
   </section>
@@ -618,9 +637,9 @@ a {
         <button class="filter-btn" type="button" data-type="Multi-Family">MULTI</button>
       </div>
       <div class="segmented" id="threshold-filters" aria-label="Drop threshold filters">
-        <button class="filter-btn active" type="button" data-threshold="all">ALL DROPS</button>
-        <button class="filter-btn" type="button" data-threshold="10">10%+</button>
-        <button class="filter-btn" type="button" data-threshold="20">20%+</button>
+        <button class="filter-btn active" type="button" data-threshold="all">ALL LISTINGS</button>
+        <button class="filter-btn" type="button" data-threshold="drops">DROPS ONLY</button>
+        <button class="filter-btn" type="button" data-threshold="no-history">NO HISTORY</button>
       </div>
     </div>
     <div class="select-controls">
@@ -664,7 +683,7 @@ a {
 </footer>
 
 <script>
-let allDrops = [];
+let allSalesListings = [];
 
 function escapeHtml(value) {
   return String(value ?? '')
@@ -688,6 +707,12 @@ function formatCurrencyFull(value) {
 
 function formatPct(value) {
   return '-' + Number(value || 0).toFixed(1) + '%';
+}
+
+function listingStatusLabel(listing) {
+  if (listing.listingKind === 'drop') return 'PRICE DROP';
+  if (listing.listingKind === 'active-no-history') return 'ACTIVE / NO PRICE HISTORY';
+  return 'ACTIVE / NO QUALIFYING DROP';
 }
 
 function encodeAddress(address) {
@@ -746,26 +771,32 @@ function specsLine(drop) {
   return [type, beds, baths, sqft, dom, zip, mls].filter(Boolean).join(' | ');
 }
 
-function sortDrops(drops, sortBy) {
-  const sorted = [...drops];
+function sortSalesListings(listings, sortBy) {
+  const sorted = [...listings];
   switch (sortBy) {
     case 'dropPercent':
-      sorted.sort((a, b) => (b.dropPercent || 0) - (a.dropPercent || 0));
+      sorted.sort((a, b) => (b.dropPercent || 0) - (a.dropPercent || 0) || (b.dropDollar || 0) - (a.dropDollar || 0));
       break;
     case 'mostRecent':
-      sorted.sort((a, b) => new Date(b.dropDate || 0) - new Date(a.dropDate || 0));
+      sorted.sort((a, b) => new Date(b.dropDate || b.listedDate || 0) - new Date(a.dropDate || a.listedDate || 0));
       break;
     case 'lowestPrice':
       sorted.sort((a, b) => (a.currentPrice || 0) - (b.currentPrice || 0));
       break;
     default:
-      sorted.sort((a, b) => (b.dropDollar || 0) - (a.dropDollar || 0));
+      sorted.sort((a, b) => {
+        const kindDiff = (b.listingKind === 'drop') - (a.listingKind === 'drop');
+        if (kindDiff !== 0) return kindDiff;
+        return (b.dropDollar || 0) - (a.dropDollar || 0) || new Date(b.listedDate || 0) - new Date(a.listedDate || 0);
+      });
   }
   return sorted;
 }
 
-function updateMetrics(drops) {
-  const count = drops.length;
+function updateMetrics(listings) {
+  const count = listings.length;
+  const drops = listings.filter(listing => listing.listingKind === 'drop');
+  const activeFallback = listings.filter(listing => listing.listingKind !== 'drop');
   document.getElementById('metric-count').textContent = count.toLocaleString('en-US');
 
   if (!count) {
@@ -775,26 +806,26 @@ function updateMetrics(drops) {
     return;
   }
 
-  const avg = drops.reduce((sum, drop) => sum + Number(drop.dropPercent || 0), 0) / count;
-  const biggest = Math.max(...drops.map(drop => Number(drop.dropPercent || 0)));
-  const totalShed = drops.reduce((sum, drop) => sum + Number(drop.dropDollar || 0), 0);
+  const avg = drops.length ? drops.reduce((sum, drop) => sum + Number(drop.dropPercent || 0), 0) / drops.length : 0;
+  const biggest = drops.length ? Math.max(...drops.map(drop => Number(drop.dropPercent || 0))) : 0;
 
-  document.getElementById('metric-average').textContent = formatPct(avg);
-  document.getElementById('metric-biggest').textContent = formatPct(biggest);
-  document.getElementById('metric-total-shed').textContent = formatCurrency(totalShed);
+  document.getElementById('metric-average').textContent = drops.length.toLocaleString('en-US');
+  document.getElementById('metric-biggest').textContent = drops.length ? formatPct(biggest || avg) : '--';
+  document.getElementById('metric-total-shed').textContent = activeFallback.length.toLocaleString('en-US');
 }
 
-function renderCards(drops) {
+function renderCards(listings) {
   const container = document.getElementById('cards-container');
-  if (!drops.length) {
+  if (!listings.length) {
     container.innerHTML = '<div class="empty">NO DATA</div>';
     return;
   }
 
-  container.innerHTML = `<div class="cards-grid">${drops.map((drop, index) => {
-    const pct = Math.max(0, Math.min(100, Number(drop.dropPercent || 0)));
-    const area = areaForZip(drop.zip);
-    const links = marketplaceLinks(drop).map(link => (
+  container.innerHTML = `<div class="cards-grid">${listings.map((listing, index) => {
+    const pct = Math.max(0, Math.min(100, Number(listing.dropPercent || 0)));
+    const area = areaForZip(listing.zip);
+    const isDrop = listing.listingKind === 'drop';
+    const links = marketplaceLinks(listing).map(link => (
       `<a href="${escapeHtml(link.url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(link.label)}</a>`
     )).join('');
 
@@ -802,17 +833,18 @@ function renderCards(drops) {
       <article class="property-card area-${escapeHtml(area)}">
         <div class="rank">${String(index + 1).padStart(2, '0')}</div>
         <div class="card-main">
-          <h2 class="address">${escapeHtml(drop.address || 'Unknown address')}</h2>
+          <h2 class="address">${escapeHtml(listing.address || 'Unknown address')}</h2>
           <div class="area-pill">${escapeHtml(areaLabel(area))}</div>
-          <p class="specs">${escapeHtml(specsLine(drop))}</p>
+          <div class="status-pill ${escapeHtml(listing.listingKind || 'active-no-history')}">${escapeHtml(listingStatusLabel(listing))}</div>
+          <p class="specs">${escapeHtml(specsLine(listing))}</p>
           <div class="price-zone">
             <div>
-              <div class="price-current">${formatCurrencyFull(drop.currentPrice)}</div>
-              <div class="price-old">${formatCurrencyFull(drop.oldPrice)}</div>
+              <div class="price-current">${formatCurrencyFull(listing.currentPrice)}</div>
+              ${isDrop ? `<div class="price-old">${formatCurrencyFull(listing.oldPrice)}</div>` : '<div class="price-old">NO PRIOR PRICE</div>'}
             </div>
             <div class="delta-stack">
-              <div class="delta">${formatPct(drop.dropPercent)} | ${formatCurrency(drop.dropDollar)}</div>
-              <div class="bar-track" aria-hidden="true"><div class="bar-fill" style="width:${pct}%"></div></div>
+              <div class="delta ${isDrop ? '' : 'muted'}">${isDrop ? `${formatPct(listing.dropPercent)} | ${formatCurrency(listing.dropDollar)}` : 'ACTIVE LISTING'}</div>
+              ${isDrop ? `<div class="bar-track" aria-hidden="true"><div class="bar-fill" style="width:${pct}%"></div></div>` : ''}
             </div>
           </div>
         </div>
@@ -822,23 +854,24 @@ function renderCards(drops) {
   }).join('')}</div>`;
 }
 
-function currentFilteredDrops() {
+function currentFilteredListings() {
   const type = document.querySelector('#type-filters .filter-btn.active')?.dataset.type || 'all';
   const threshold = document.querySelector('#threshold-filters .filter-btn.active')?.dataset.threshold || 'all';
   const area = document.getElementById('area-select').value;
   const sortBy = document.getElementById('sort-select').value;
 
-  let filtered = [...allDrops];
-  if (type !== 'all') filtered = filtered.filter(drop => drop.propertyType === type);
-  if (threshold !== 'all') filtered = filtered.filter(drop => Number(drop.dropPercent || 0) >= Number(threshold));
-  if (area !== 'all') filtered = filtered.filter(drop => areaForZip(drop.zip) === area);
-  return sortDrops(filtered, sortBy);
+  let filtered = [...allSalesListings];
+  if (type !== 'all') filtered = filtered.filter(listing => listing.propertyType === type);
+  if (threshold === 'drops') filtered = filtered.filter(listing => listing.listingKind === 'drop');
+  if (threshold === 'no-history') filtered = filtered.filter(listing => listing.listingKind === 'active-no-history');
+  if (area !== 'all') filtered = filtered.filter(listing => areaForZip(listing.zip) === area);
+  return sortSalesListings(filtered, sortBy);
 }
 
 function applyFilters() {
-  const drops = currentFilteredDrops();
-  updateMetrics(drops);
-  renderCards(drops);
+  const listings = currentFilteredListings();
+  updateMetrics(listings);
+  renderCards(listings);
 }
 
 function bindSegmentedControls(id, attr) {
@@ -856,7 +889,12 @@ async function loadData() {
     const response = await fetch('data/listings.json', { cache: 'no-cache' });
     if (!response.ok) throw new Error('Failed to load sales data');
     const data = await response.json();
-    allDrops = Array.isArray(data.drops) ? sortDrops(data.drops, 'dropDollar') : [];
+    const displayListings = Array.isArray(data.displayListings)
+      ? data.displayListings
+      : Array.isArray(data.drops)
+        ? data.drops
+        : [];
+    allSalesListings = sortSalesListings(displayListings, 'dropDollar');
 
     document.getElementById('toolbar').style.display = 'flex';
 
