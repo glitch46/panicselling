@@ -2,8 +2,8 @@ name: Refresh listings data
 
 on:
   schedule:
-    # Midnight UTC daily. Uses one RentCast rental listing call and stale median cache.
-    - cron: '0 0 * * *'
+    # Around 10 PM CST every 3 days. Uses one RentCast rental listing call and stale median cache.
+    - cron: '0 4 */3 * *'
   workflow_dispatch:
 
 permissions:
